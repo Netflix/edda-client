@@ -1,0 +1,66 @@
+
+// Establish version and status
+ext.githubProjectName = 'edda-client'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  apply from: file('gradle/buildscript.gradle'), to: buildscript
+}
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+}
+
+if (file('gradle/repos.gradle').exists()) {
+  apply from: file('gradle/repos.gradle')
+}
+apply from: file('gradle/convention.gradle')
+apply from: file('gradle/maven.gradle')
+apply from: file('gradle/license.gradle')
+apply from: file('gradle/release.gradle')
+
+subprojects {
+  group = "com.netflix.${githubProjectName}"
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  tasks.withType(Compile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+  }
+
+  javadoc {
+    options {
+      links = ['http://docs.oracle.com/javase/7/docs/api/']
+    }
+  }
+
+  dependencies {
+    compile 'com.netflix.awsobjectmapper:awsobjectmapper:1.8.7.+'
+    compile 'com.netflix.spectator:spectator-nflx:0.9'
+    compile 'commons-io:commons-io:2.4'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.4.1'
+    testCompile 'junit:junit:4.10'
+    testCompile 'com.google.guava:guava:14.0.1'
+    testCompile 'io.github.benas:jpopulator:1.0.1'
+  }
+
+  task copyDepsToBuild << {
+    ['compile', 'runtime', 'testCompile', 'testRuntime'].each { conf ->
+      delete "${buildDir}/dependencies/${conf}"
+      copy {
+        from configurations[conf]
+        into "${buildDir}/dependencies/${conf}"
+      }
+    }
+  }
+}
