@@ -44,6 +44,7 @@ public class NiwsHttpClient extends HttpClient {
 
   private static Pattern NIWS_URI = Pattern.compile("niws://([^/]+)(.*)");
 
+  @Override
   protected HttpResponse execute(
     String method,
     URI uri,

@@ -25,6 +25,9 @@ interface AwsConfiguration extends Configuration {
   @DefaultValue("false")
   public boolean useMock();
 
+  @DefaultValue("false")
+  public boolean readOnly();
+
   /**
    * Should we attempt to use edda for reads? This is only supported for the EC2 api and will be
    * ignored for all others.
@@ -36,7 +39,7 @@ interface AwsConfiguration extends Configuration {
    * Should we funnel requests through admin application? This is only supported for the EC2 api
    * and will be ignored for all others.
    */
-  @DefaultValue("true")
+  @DefaultValue("false")
   public boolean useAdmin();
 
   /** URI to use when proxying write operations for EC2. */

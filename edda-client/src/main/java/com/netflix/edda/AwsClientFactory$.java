@@ -29,6 +29,8 @@ import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 
+import com.amazonaws.services.autoscaling.AmazonAutoScaling;
+import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 
@@ -39,7 +41,7 @@ public class AwsClientFactory$ {
   private AwsClientFactory$() {}
 
   private static AwsConfiguration config() {
-    return Configuration$.newProxy(AwsConfiguration.class, "netflix.atlas.aws");
+    return Configuration$.newProxy(AwsConfiguration.class, "netflix.edda.aws");
   }
 
   private static AWSCredentialsProvider credentialsProvider(AwsConfiguration config) {
@@ -80,6 +82,28 @@ public class AwsClientFactory$ {
       .withSocketTimeout((int) config.socketTimeout().getMillis());
   }
 
+  public static AmazonAutoScaling newAutoScalingClient() {
+    AwsConfiguration config = config();
+    return newAutoScalingClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+  }
+
+  public static AmazonAutoScaling newAutoScalingClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String region
+  ) {
+    if (config.useMock())
+      throw new UnsupportedOperationException("AutoScaling mock not yet supported");
+    if (config.useAdmin())
+      throw new UnsupportedOperationException("AutoScaling admin not yet supported");
+    if (config.readOnly()) EddaAutoScalingClient$.readOnly(config);
+    AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
+    client.setEndpoint("autoscaling." + region + ".amazonaws.com");
+    if (config.useEdda())
+      client = EddaAutoScalingClient$.wrap(client, config);
+    return client;
+  }
+
   public static AmazonEC2 newEc2Client() {
     AwsConfiguration config = config();
     return newEc2Client(config, credentialsProvider(config), NetflixEnvironment$.region());
@@ -90,8 +114,11 @@ public class AwsClientFactory$ {
     AWSCredentialsProvider provider,
     String region
   ) {
-    if (config.useMock()) throw new UnsupportedOperationException("EC2 mock not yet supported");
-    if (config.useAdmin()) throw new UnsupportedOperationException("EC2 admin not yet supported");
+    if (config.useMock())
+      throw new UnsupportedOperationException("EC2 mock not yet supported");
+    if (config.useAdmin())
+      throw new UnsupportedOperationException("EC2 admin not yet supported");
+    if (config.readOnly()) EddaEc2Client$.readOnly(config);
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
     if (config.useEdda())
