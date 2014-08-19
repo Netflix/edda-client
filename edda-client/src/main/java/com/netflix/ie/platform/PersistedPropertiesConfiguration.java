@@ -25,6 +25,10 @@ import com.netflix.ie.config.Configuration;
 public class PersistedPropertiesConfiguration implements Configuration {
   private final String prefix;
 
+  public PersistedPropertiesConfiguration() {
+    this(null);
+  }
+
   public PersistedPropertiesConfiguration(String prefix) {
     this.prefix = prefix;
   }
