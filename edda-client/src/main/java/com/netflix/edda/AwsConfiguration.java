@@ -25,8 +25,9 @@ interface AwsConfiguration extends Configuration {
   @DefaultValue("false")
   public boolean useMock();
 
+  /** Should we wrap a real AWS client capable of accessing AWS apis directly */
   @DefaultValue("false")
-  public boolean readOnly();
+  public boolean wrapAwsClient();
 
   /**
    * Should we attempt to use edda for reads? This is only supported for the EC2 api and will be

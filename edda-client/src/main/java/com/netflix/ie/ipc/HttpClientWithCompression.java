@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -37,7 +38,7 @@ public class HttpClientWithCompression extends HttpClient {
   private HttpResponse withDeflation(HttpResponse res) {
     String encoding = res.headers().get("Content-Encoding");
     if (encoding != null && encoding.contains("gzip")) {
-      Map<String,String> headers = res.headers();
+      Map<String,String> headers = new HashMap<String,String>(res.headers());
       headers.remove("Content-Encoding");
       GZIPInputStream input = null;
       try {

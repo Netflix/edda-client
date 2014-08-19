@@ -96,7 +96,9 @@ public class AwsClientFactory$ {
       throw new UnsupportedOperationException("AutoScaling mock not yet supported");
     if (config.useAdmin())
       throw new UnsupportedOperationException("AutoScaling admin not yet supported");
-    if (config.readOnly()) EddaAutoScalingClient$.readOnly(config);
+    if (!config.wrapAwsClient())
+      return EddaAutoScalingClient$.readOnly(config);
+
     AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
     if (config.useEdda())
@@ -118,7 +120,9 @@ public class AwsClientFactory$ {
       throw new UnsupportedOperationException("EC2 mock not yet supported");
     if (config.useAdmin())
       throw new UnsupportedOperationException("EC2 admin not yet supported");
-    if (config.readOnly()) EddaEc2Client$.readOnly(config);
+    if (!config.wrapAwsClient())
+      return EddaEc2Client$.readOnly(config);
+
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
     if (config.useEdda())
