@@ -13,20 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.edda;
+package com.netflix.edda.mapper;
 
-import com.amazonaws.services.ec2.AmazonEC2;
-
-import com.netflix.ie.util.ProxyHelper$;
-
-public class EddaEc2Client$ {
-  private EddaEc2Client$() {}
-
-  public static AmazonEC2 readOnly(AwsConfiguration config) {
-    return ProxyHelper$.unsupported(AmazonEC2.class, new EddaEc2Client(config));
-  }
-
-  public static AmazonEC2 wrap(AmazonEC2 delegate, AwsConfiguration config) {
-    return ProxyHelper$.wrapper(AmazonEC2.class, delegate, new EddaEc2Client(config));
-  }
+public interface InstanceStateViewMixIn {
 }

@@ -27,11 +27,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.netflix.awsobjectmapper.AmazonObjectMapper;
 
+import com.netflix.edda.mapper.*;
+
 public class JsonHelper$ {
   private JsonHelper$() {}
 
-  private static final ObjectMapper mapper = new AmazonObjectMapper();
-  private static final MappingJsonFactory factory = new MappingJsonFactory(mapper);
+  private static final ObjectMapper mapper;
+  private static final MappingJsonFactory factory;
+
+  static {
+    mapper = new AmazonObjectMapper();
+    mapper.addMixInAnnotations(InstanceStateView.class, InstanceStateViewMixIn.class);
+    factory = new MappingJsonFactory(mapper);
+  }
 
   public static JsonParser createParser(InputStream input) throws IOException {
     return factory.createParser(input);

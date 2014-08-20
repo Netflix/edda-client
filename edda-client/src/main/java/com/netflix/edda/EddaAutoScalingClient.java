@@ -21,11 +21,20 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.model.*;
 
 public class EddaAutoScalingClient extends EddaAwsClient {
   public EddaAutoScalingClient(AwsConfiguration config) {
     super(config);
+  }
+
+  public AmazonAutoScaling readOnly() {
+    return readOnly(AmazonAutoScaling.class);
+  }
+
+  public AmazonAutoScaling wrapAwsClient(AmazonAutoScaling delegate) {
+    return wrapAwsClient(AmazonAutoScaling.class, delegate);
   }
 
   public DescribeAutoScalingGroupsResult describeAutoScalingGroups() {

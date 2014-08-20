@@ -17,21 +17,28 @@ package com.netflix.edda;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-//import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-//import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 
 import com.netflix.ie.ipc.Http$;
 import com.netflix.ie.ipc.HttpResponse;
+import com.netflix.ie.util.ProxyHelper$;
 
 abstract public class EddaAwsClient {
-   final AwsConfiguration config;
+  final AwsConfiguration config;
 
   public EddaAwsClient(AwsConfiguration config) {
     this.config = config;
+  }
+
+  protected <T> T readOnly(Class<T> c) {
+    return ProxyHelper$.unsupported(c, this);
+  }
+
+  protected <T> T wrapAwsClient(Class<T> c, T delegate) {
+    return ProxyHelper$.wrapper(c, delegate, this);
   }
 
   HttpResponse doGet(String uri) {

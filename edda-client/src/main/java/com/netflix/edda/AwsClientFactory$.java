@@ -31,8 +31,14 @@ import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
+import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53Client;
 
 import com.netflix.ie.config.Configuration$;
 import com.netflix.ie.platform.NetflixEnvironment$;
@@ -97,12 +103,36 @@ public class AwsClientFactory$ {
     if (config.useAdmin())
       throw new UnsupportedOperationException("AutoScaling admin not yet supported");
     if (!config.wrapAwsClient())
-      return EddaAutoScalingClient$.readOnly(config);
+      return new EddaAutoScalingClient(config).readOnly();
 
     AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = EddaAutoScalingClient$.wrap(client, config);
+      client = new EddaAutoScalingClient(config).wrapAwsClient(client);
+    return client;
+  }
+
+  public static AmazonCloudWatch newCloudWatchClient() {
+    AwsConfiguration config = config();
+    return newCloudWatchClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+  }
+
+  public static AmazonCloudWatch newCloudWatchClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String region
+  ) {
+    if (config.useMock())
+      throw new UnsupportedOperationException("CloudWatch mock not yet supported");
+    if (config.useAdmin())
+      throw new UnsupportedOperationException("CloudWatch admin not yet supported");
+    if (!config.wrapAwsClient())
+      return new EddaCloudWatchClient(config).readOnly();
+
+    AmazonCloudWatch client = new AmazonCloudWatchClient(provider, clientConfig(config));
+    client.setEndpoint("monitoring." + region + ".amazonaws.com");
+    if (config.useEdda())
+      client = new EddaCloudWatchClient(config).wrapAwsClient(client);
     return client;
   }
 
@@ -121,12 +151,59 @@ public class AwsClientFactory$ {
     if (config.useAdmin())
       throw new UnsupportedOperationException("EC2 admin not yet supported");
     if (!config.wrapAwsClient())
-      return EddaEc2Client$.readOnly(config);
+      return new EddaEc2Client(config).readOnly();
 
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = EddaEc2Client$.wrap(client, config);
+      client = new EddaEc2Client(config).wrapAwsClient(client);
+    return client;
+  }
+
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient() {
+    AwsConfiguration config = config();
+    return newElasticLoadBalancingClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+  }
+
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String region
+  ) {
+    if (config.useMock())
+      throw new UnsupportedOperationException("ElasticLoadBalancing mock not yet supported");
+    if (config.useAdmin())
+      throw new UnsupportedOperationException("ElasticLoadBalancing admin not yet supported");
+    if (!config.wrapAwsClient())
+      return new EddaElasticLoadBalancingClient(config).readOnly();
+
+    AmazonElasticLoadBalancing client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
+    client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
+    if (config.useEdda())
+      client = new EddaElasticLoadBalancingClient(config).wrapAwsClient(client);
+    return client;
+  }
+
+  public static AmazonRoute53 newRoute53Client() {
+    AwsConfiguration config = config();
+    return newRoute53Client(config, credentialsProvider(config), NetflixEnvironment$.region());
+  }
+
+  public static AmazonRoute53 newRoute53Client(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String region
+  ) {
+    if (config.useMock())
+      throw new UnsupportedOperationException("Route53 mock not yet supported");
+    if (config.useAdmin())
+      throw new UnsupportedOperationException("Route53 admin not yet supported");
+    if (!config.wrapAwsClient())
+      return new EddaRoute53Client(config).readOnly();
+
+    AmazonRoute53 client = new AmazonRoute53Client(provider, clientConfig(config));
+    if (config.useEdda())
+      client = new EddaRoute53Client(config).wrapAwsClient(client);
     return client;
   }
 }

@@ -21,11 +21,20 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
 public class EddaEc2Client extends EddaAwsClient {
   public EddaEc2Client(AwsConfiguration config) {
     super(config);
+  }
+
+  public AmazonEC2 readOnly() {
+    return readOnly(AmazonEC2.class);
+  }
+
+  public AmazonEC2 wrapAwsClient(AmazonEC2 delegate) {
+    return wrapAwsClient(AmazonEC2.class, delegate);
   }
 
   public DescribeImagesResult describeImages() {
