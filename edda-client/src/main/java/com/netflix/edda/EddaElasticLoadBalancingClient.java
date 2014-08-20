@@ -25,6 +25,7 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.model.*;
 
 import com.netflix.edda.mapper.InstanceStateView;
+import com.netflix.edda.mapper.LoadBalancerAttributesView;
 
 public class EddaElasticLoadBalancingClient extends EddaAwsClient {
   public EddaElasticLoadBalancingClient(AwsConfiguration config) {
@@ -67,6 +68,23 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
       List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, doGet(url).body());
       return new DescribeLoadBalancersResult()
         .withLoadBalancerDescriptions(loadBalancerDescriptions);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
+
+  public DescribeLoadBalancerAttributesResult describeLoadBalancerAttributes(DescribeLoadBalancerAttributesRequest request) {
+    TypeReference<LoadBalancerAttributesView> ref = new TypeReference<LoadBalancerAttributesView>() {};
+    String loadBalancerName = request.getLoadBalancerName();
+    if (loadBalancerName == null)
+      throw new AmazonClientException("Missing load balancer name");
+
+    String url = config.url() + "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand";
+    try {
+      LoadBalancerAttributesView loadBalancerAttributesView = parse(ref, doGet(url).body());
+      return new DescribeLoadBalancerAttributesResult()
+        .withLoadBalancerAttributes(loadBalancerAttributesView.getAttributes());
     }
     catch (IOException e) {
       throw new AmazonClientException("Faled to parse " + url, e);

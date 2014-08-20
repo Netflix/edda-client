@@ -38,6 +38,7 @@ public class JsonHelper$ {
   static {
     mapper = new AmazonObjectMapper();
     mapper.addMixInAnnotations(InstanceStateView.class, InstanceStateViewMixIn.class);
+    mapper.addMixInAnnotations(LoadBalancerAttributesView.class, LoadBalancerAttributesViewMixIn.class);
     factory = new MappingJsonFactory(mapper);
   }
 
