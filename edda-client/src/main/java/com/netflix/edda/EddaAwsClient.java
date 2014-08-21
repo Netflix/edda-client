@@ -25,12 +25,14 @@ import com.amazonaws.AmazonServiceException;
 import com.netflix.ie.ipc.Http$;
 import com.netflix.ie.ipc.HttpResponse;
 import com.netflix.ie.util.ProxyHelper$;
+import com.netflix.ie.platform.PlatformInitializer$;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
 
   public EddaAwsClient(AwsConfiguration config) {
     this.config = config;
+    PlatformInitializer$.loadResource("edda.niws.properties");
   }
 
   protected <T> T readOnly(Class<T> c) {
