@@ -47,7 +47,6 @@ subprojects {
     compile 'commons-io:commons-io:2.4'
     testCompile 'junit:junit:4.10'
     testCompile 'com.google.guava:guava:14.0.1'
-    testCompile 'io.github.benas:jpopulator:1.0.1'
   }
 
   task copyDepsToBuild << {
