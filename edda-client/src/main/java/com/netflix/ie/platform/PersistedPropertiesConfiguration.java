@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.netflix.config.DynamicStringProperty;
 
-import com.netflix.ie.config.Configuration;
+import com.netflix.ie.config.IConfiguration;
 
-public class PersistedPropertiesConfiguration implements Configuration {
+public class PersistedPropertiesConfiguration implements IConfiguration {
   private final String prefix;
 
   public PersistedPropertiesConfiguration() {

@@ -25,7 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 public class ConfigurationTests {
-  interface TestConfig extends Configuration {
+  interface TestConfig extends IConfiguration {
     @DefaultValue("string")
     public String getString();
 
@@ -57,7 +57,7 @@ public class ConfigurationTests {
   private TestConfig mkConfig() { return mkConfig(new HashMap<String,String>()); }
   private TestConfig mkConfig(Map<String,String> props) { return mkConfig(null, props); }
   private TestConfig mkConfig(String prefix, Map<String,String> props) {
-    return Configuration$.newProxyImpl(TestConfig.class, prefix, new MapConfiguration(null, props));
+    return Configuration.newProxyImpl(TestConfig.class, prefix, new MapConfiguration(null, props));
   }
 
   @Test

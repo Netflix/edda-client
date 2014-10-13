@@ -20,8 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public class ProxyHelper$ {
-  private ProxyHelper$() {}
+public class ProxyHelper {
+  private ProxyHelper() {}
 
   @SuppressWarnings("unchecked")
   public static <T> T wrapper(final Class<T> ctype, final T delegate, final Object overrides) {

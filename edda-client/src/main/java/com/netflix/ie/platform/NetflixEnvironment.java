@@ -17,8 +17,8 @@ package com.netflix.ie.platform;
 
 import java.net.InetAddress;
 
-public class NetflixEnvironment$ {
-  private NetflixEnvironment$() {}
+public class NetflixEnvironment {
+  private NetflixEnvironment() {}
 
   private static String LOCAL_APP = "local";
 
@@ -57,7 +57,7 @@ public class NetflixEnvironment$ {
 
   public static String ami() {
     if (!bitmap$0) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$0) {
           ami = System.getenv("EC2_AMI_ID");
           bitmap$0 = true;
@@ -69,7 +69,7 @@ public class NetflixEnvironment$ {
 
   public static String vmtype() {
     if (!bitmap$1) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$1) {
           vmtype = System.getenv("EC2_INSTANCE_TYPE");
           bitmap$1 = true;
@@ -81,7 +81,7 @@ public class NetflixEnvironment$ {
 
   public static String vpcId() {
     if (!bitmap$2) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$2) {
           vpcid = System.getenv("EC2_VPC_ID");
           bitmap$2 = true;
@@ -93,7 +93,7 @@ public class NetflixEnvironment$ {
 
   public static String region() {
     if (!bitmap$3) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$3) {
           region = System.getenv("EC2_REGION");
           if (region == null) region = "us-nflx-1";
@@ -106,7 +106,7 @@ public class NetflixEnvironment$ {
 
   public static String zone() {
     if (!bitmap$4) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$4) {
           zone = System.getenv("EC2_AVAILABILITY_ZONE");
           if (zone == null) zone = "us-nflx-1a";
@@ -119,7 +119,7 @@ public class NetflixEnvironment$ {
 
   public static String instanceId() {
     if (!bitmap$5) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$5) {
           instanceId = System.getenv("EC2_INSTANCE_ID");
           if (instanceId == null) {
@@ -135,7 +135,7 @@ public class NetflixEnvironment$ {
 
   public static String app() {
     if (!bitmap$6) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$6) {
           app = System.getenv("NETFLIX_APP");
           if (app == null) app = LOCAL_APP;
@@ -148,7 +148,7 @@ public class NetflixEnvironment$ {
 
   public static String cluster() {
     if (!bitmap$7) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$7) {
           cluster = System.getenv("NETFLIX_CLUSTER");
           if (cluster == null) cluster = LOCAL_APP;
@@ -161,7 +161,7 @@ public class NetflixEnvironment$ {
 
   public static String asg() {
     if (!bitmap$8) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$8) {
           asg = System.getenv("NETFLIX_AUTO_SCALE_GROUP");
           if (asg == null) asg = LOCAL_APP;
@@ -174,7 +174,7 @@ public class NetflixEnvironment$ {
 
   public static String stack() {
     if (!bitmap$9) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$9) {
           stack = System.getenv("NETFLIX_STACK");
           if (stack == null) stack = "none";
@@ -187,7 +187,7 @@ public class NetflixEnvironment$ {
 
   public static String env() {
     if (!bitmap$10) {
-      synchronized(NetflixEnvironment$.class) {
+      synchronized(NetflixEnvironment.class) {
         if (!bitmap$10) {
           env = System.getenv("NETFLIX_ENVIRONMENT");
           if (env == null) env = "dev";

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import com.google.common.base.Joiner;
 
-import com.netflix.ie.util.Hash$;
+import com.netflix.ie.util.Hash;
 
 public class SimpleHttpClient extends HttpClient {
   private final static Logger LOGGER = LoggerFactory.getLogger(SimpleHttpClient.class);
@@ -61,7 +61,7 @@ public class SimpleHttpClient extends HttpClient {
   ) throws Exception {
     URI uri = rawUri;
     try {
-      String suffix = (body == null) ? "" : ";" + method + "=" + Hash$.md5(body);
+      String suffix = (body == null) ? "" : ";" + method + "=" + Hash.md5(body);
       uri = new URI(rawUri.toString().replace("?", ";") + suffix);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(method + " " + uri);

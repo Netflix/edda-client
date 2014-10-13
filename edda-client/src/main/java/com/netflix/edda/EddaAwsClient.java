@@ -22,29 +22,29 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonServiceException;
 
-import com.netflix.ie.ipc.Http$;
+import com.netflix.ie.ipc.Http;
 import com.netflix.ie.ipc.HttpResponse;
-import com.netflix.ie.util.ProxyHelper$;
-import com.netflix.ie.platform.PlatformInitializer$;
+import com.netflix.ie.util.ProxyHelper;
+import com.netflix.ie.platform.PlatformInitializer;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
 
   public EddaAwsClient(AwsConfiguration config) {
     this.config = config;
-    PlatformInitializer$.loadResource("edda.niws.properties");
+    PlatformInitializer.loadResource("edda.niws.properties");
   }
 
   protected <T> T readOnly(Class<T> c) {
-    return ProxyHelper$.unsupported(c, this);
+    return ProxyHelper.unsupported(c, this);
   }
 
   protected <T> T wrapAwsClient(Class<T> c, T delegate) {
-    return ProxyHelper$.wrapper(c, delegate, this);
+    return ProxyHelper.wrapper(c, delegate, this);
   }
 
   HttpResponse doGet(String uri) {
-    HttpResponse res = Http$.get(uri);
+    HttpResponse res = Http.get(uri);
     if (res.status() != 200) {
       AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
       e.setStatusCode(res.status());
@@ -56,6 +56,6 @@ abstract public class EddaAwsClient {
   }
 
   <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
-      return JsonHelper$.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
+      return JsonHelper.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
   }
 }

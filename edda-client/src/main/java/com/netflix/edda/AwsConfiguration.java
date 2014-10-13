@@ -15,12 +15,12 @@
  */
 package com.netflix.edda;
 
-import com.netflix.ie.config.Configuration;
+import com.netflix.ie.config.IConfiguration;
 import com.netflix.ie.config.DefaultValue;
 
 import org.joda.time.Duration;
 
-interface AwsConfiguration extends Configuration {
+interface AwsConfiguration extends IConfiguration {
   /** Should we mock dependencies? */
   @DefaultValue("false")
   public boolean useMock();

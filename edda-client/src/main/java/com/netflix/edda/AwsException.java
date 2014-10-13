@@ -17,8 +17,8 @@ package com.netflix.edda;
 
 import com.amazonaws.AmazonServiceException;
 
-public class AwsException$ {
-  private AwsException$() {}
+public class AwsException {
+  private AwsException() {}
 
   private final static String oneTrueId = "04d05938-1521-44f1-a0dd-39263a5326f3";
 

@@ -10,10 +10,10 @@ import java.util.Properties;
 import com.google.common.io.Resources;
 import com.google.common.base.Charsets;
 
-import com.netflix.ie.config.Configuration$;
+import com.netflix.ie.config.Configuration;
 
-public class ResourceConfiguration$ {
-  private ResourceConfiguration$() {}
+public class ResourceConfiguration {
+  private ResourceConfiguration() {}
 
   public static void load(
     String propFile
@@ -43,8 +43,8 @@ public class ResourceConfiguration$ {
     for (Map.Entry e : overrides.entrySet()) {
       props.setProperty((String) e.getKey(), (String) e.getValue());
     }
-    Configuration$.setBackingStore(
-      new Configuration() {
+    Configuration.setBackingStore(
+      new IConfiguration() {
         @Override
         public String get(String key) {
           return (String) props.getProperty(key);

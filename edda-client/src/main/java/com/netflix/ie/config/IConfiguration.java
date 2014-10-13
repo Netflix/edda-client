@@ -15,14 +15,6 @@
  */
 package com.netflix.ie.config;
 
-public class SystemPropertyConfiguration implements IConfiguration {
-  private String prefix;
-
-  public SystemPropertyConfiguration(String prefix) {
-    this.prefix = prefix;
-  }
-
-  public String get(String key) {
-    return System.getProperty(prefix + "." + key);
-  }
+public interface IConfiguration {
+  public String get(String key);
 }

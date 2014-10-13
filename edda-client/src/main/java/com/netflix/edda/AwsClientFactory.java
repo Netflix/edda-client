@@ -40,14 +40,14 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingCli
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 
-import com.netflix.ie.config.Configuration$;
-import com.netflix.ie.platform.NetflixEnvironment$;
+import com.netflix.ie.config.Configuration;
+import com.netflix.ie.platform.NetflixEnvironment;
 
-public class AwsClientFactory$ {
-  private AwsClientFactory$() {}
+public class AwsClientFactory {
+  private AwsClientFactory() {}
 
   private static AwsConfiguration config() {
-    return Configuration$.newProxy(AwsConfiguration.class, "netflix.edda.aws");
+    return Configuration.newProxy(AwsConfiguration.class, "netflix.edda.aws");
   }
 
   private static AWSCredentialsProvider credentialsProvider(AwsConfiguration config) {
@@ -90,7 +90,7 @@ public class AwsClientFactory$ {
 
   public static AmazonAutoScaling newAutoScalingClient() {
     AwsConfiguration config = config();
-    return newAutoScalingClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+    return newAutoScalingClient(config, credentialsProvider(config), NetflixEnvironment.region());
   }
 
   public static AmazonAutoScaling newAutoScalingClient(
@@ -114,7 +114,7 @@ public class AwsClientFactory$ {
 
   public static AmazonCloudWatch newCloudWatchClient() {
     AwsConfiguration config = config();
-    return newCloudWatchClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+    return newCloudWatchClient(config, credentialsProvider(config), NetflixEnvironment.region());
   }
 
   public static AmazonCloudWatch newCloudWatchClient(
@@ -138,7 +138,7 @@ public class AwsClientFactory$ {
 
   public static AmazonEC2 newEc2Client() {
     AwsConfiguration config = config();
-    return newEc2Client(config, credentialsProvider(config), NetflixEnvironment$.region());
+    return newEc2Client(config, credentialsProvider(config), NetflixEnvironment.region());
   }
 
   public static AmazonEC2 newEc2Client(
@@ -162,7 +162,7 @@ public class AwsClientFactory$ {
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient() {
     AwsConfiguration config = config();
-    return newElasticLoadBalancingClient(config, credentialsProvider(config), NetflixEnvironment$.region());
+    return newElasticLoadBalancingClient(config, credentialsProvider(config), NetflixEnvironment.region());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
@@ -186,7 +186,7 @@ public class AwsClientFactory$ {
 
   public static AmazonRoute53 newRoute53Client() {
     AwsConfiguration config = config();
-    return newRoute53Client(config, credentialsProvider(config), NetflixEnvironment$.region());
+    return newRoute53Client(config, credentialsProvider(config), NetflixEnvironment.region());
   }
 
   public static AmazonRoute53 newRoute53Client(

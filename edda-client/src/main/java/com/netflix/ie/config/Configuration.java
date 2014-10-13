@@ -15,6 +15,70 @@
  */
 package com.netflix.ie.config;
 
-public interface Configuration {
-  public String get(String key);
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.netflix.ie.util.Strings;
+
+public final class Configuration {
+  private Configuration() {}
+
+  public static String defaultPrefix = "netflix";
+  public static IConfiguration defaultConfig = new SystemPropertyConfiguration(defaultPrefix);
+  private static AtomicReference<IConfiguration> backingStoreRef =
+    new AtomicReference<IConfiguration>(defaultConfig);
+
+  public static void setBackingStore(IConfiguration c) {
+    backingStoreRef.set(c);
+  }
+
+  public static <T> T apply(Class<T> ctype) {
+    String pkg = ctype.getPackage().getName();
+    String prefix = (pkg.startsWith("com.")) ? pkg.substring("com.".length()) : pkg;
+    return newProxy(ctype, prefix);
+  }
+
+  public static <T> T newProxy(Class<T> ctype, String prefix) {
+    return (T) newProxyImpl(ctype, prefix, backingStoreRef.get());
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T newProxyImpl(
+    final Class<T> ctype,
+    final String prefix,
+    final IConfiguration backingStore
+   ) {
+    InvocationHandler handler = new InvocationHandler() {
+      @Override
+      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (method.getName().equals("get")) {
+          return backingStore.get((args[0] == null) ? null : args[0].toString());
+        }
+        else {
+          Class rt = method.getReturnType();
+          String key = (prefix == null) ? method.getName() : prefix + "." + method.getName();
+          if (IConfiguration.class.isAssignableFrom(rt)) {
+            return newProxyImpl(rt, key, backingStore);
+          }
+          else {
+            String value = backingStore.get(key);
+            if (value == null) {
+              DefaultValue anno = method.getAnnotation(DefaultValue.class);
+              value = (anno == null) ? null : anno.value();
+            }
+            if (value == null) {
+              if (rt.isPrimitive())
+                throw new IllegalStateException("no value for property " + method.getName());
+               return null;
+            }
+            return Strings.cast(rt, value);
+          }
+        }
+      }
+    };
+    return (T) Proxy.newProxyInstance(ctype.getClassLoader(), new Class[]{ctype}, handler);
+  }
 }

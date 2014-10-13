@@ -28,8 +28,8 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormatter;
 
-public class Strings$ {
-  private Strings$() {}
+public class Strings {
+  private Strings() {}
 
   /**
    * URL query parameter.

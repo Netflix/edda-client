@@ -29,8 +29,8 @@ import com.netflix.awsobjectmapper.AmazonObjectMapper;
 
 import com.netflix.edda.mapper.*;
 
-public class JsonHelper$ {
-  private JsonHelper$() {}
+public class JsonHelper {
+  private JsonHelper() {}
 
   private static final ObjectMapper mapper;
   private static final MappingJsonFactory factory;

@@ -18,8 +18,8 @@ package com.netflix.ie.ipc;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Http$ {
-  private Http$() {}
+public class Http {
+  private Http() {}
 
   private static final AtomicReference<HttpClient> clientRef =
     new AtomicReference<HttpClient>(new SimpleHttpClient());

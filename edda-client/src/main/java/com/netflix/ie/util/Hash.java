@@ -20,8 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Hash$ {
-  private Hash$() {}
+public class Hash {
+  private Hash() {}
 
   public static BigInteger md5(String input) throws UnsupportedEncodingException {
     return md5(input.getBytes("UTF-8"));

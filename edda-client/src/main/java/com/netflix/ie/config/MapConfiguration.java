@@ -18,7 +18,7 @@ package com.netflix.ie.config;
 import java.util.Collections;
 import java.util.Map;
 
-public class MapConfiguration implements Configuration {
+public class MapConfiguration implements IConfiguration {
   private final String prefix;
   private final Map<String,String> props;
 

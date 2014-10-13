@@ -118,11 +118,11 @@ public class NiwsHttpClient extends HttpClient {
   }
 
   private void addTraceHeaders(HttpRequest.Builder builder) {
-    builder.header("X-Netflix.environment", NetflixEnvironment$.env());
+    builder.header("X-Netflix.environment", NetflixEnvironment.env());
     builder.header("X-Netflix.client.requestStartTime", String.valueOf(System.currentTimeMillis()));
-    builder.header("X-Netflix.client.appid", NetflixEnvironment$.app());
-    builder.header("X-Netflix.client.asg.name", NetflixEnvironment$.asg());
-    builder.header("X-Netflix.client.az", NetflixEnvironment$.zone());
-    builder.header("X-Netflix.client.instid", NetflixEnvironment$.instanceId());
+    builder.header("X-Netflix.client.appid", NetflixEnvironment.app());
+    builder.header("X-Netflix.client.asg.name", NetflixEnvironment.asg());
+    builder.header("X-Netflix.client.az", NetflixEnvironment.zone());
+    builder.header("X-Netflix.client.instid", NetflixEnvironment.instanceId());
   }
 }
