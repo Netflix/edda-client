@@ -104,8 +104,12 @@ public class AwsClientFactory {
   }
 
   public static AmazonAutoScaling newAutoScalingClient() {
+    return newAutoScalingClient(DEFAULT_PROVIDER.get());
+  }
+
+  public static AmazonAutoScaling newAutoScalingClient(AWSCredentialsProvider provider) {
     AwsConfiguration config = config();
-    return newAutoScalingClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
+    return newAutoScalingClient(config, provider, NetflixEnvironment.region());
   }
 
   public static AmazonAutoScaling newAutoScalingClient(
@@ -126,8 +130,12 @@ public class AwsClientFactory {
   }
 
   public static AmazonCloudWatch newCloudWatchClient() {
+    return newCloudWatchClient(DEFAULT_PROVIDER.get());
+  }
+
+  public static AmazonCloudWatch newCloudWatchClient(AWSCredentialsProvider provider) {
     AwsConfiguration config = config();
-    return newCloudWatchClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
+    return newCloudWatchClient(config, provider, NetflixEnvironment.region());
   }
 
   public static AmazonCloudWatch newCloudWatchClient(
@@ -148,8 +156,12 @@ public class AwsClientFactory {
   }
 
   public static AmazonEC2 newEc2Client() {
+    return newEc2Client(DEFAULT_PROVIDER.get());
+  }
+
+  public static AmazonEC2 newEc2Client(AWSCredentialsProvider provider) {
     AwsConfiguration config = config();
-    return newEc2Client(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
+    return newEc2Client(config, provider, NetflixEnvironment.region());
   }
 
   public static AmazonEC2 newEc2Client(
@@ -170,8 +182,12 @@ public class AwsClientFactory {
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient() {
+    return newElasticLoadBalancingClient(DEFAULT_PROVIDER.get());
+  }
+
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(AWSCredentialsProvider provider) {
     AwsConfiguration config = config();
-    return newElasticLoadBalancingClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
+    return newElasticLoadBalancingClient(config, provider, NetflixEnvironment.region());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
@@ -192,8 +208,12 @@ public class AwsClientFactory {
   }
 
   public static AmazonRoute53 newRoute53Client() {
+    return newRoute53Client(DEFAULT_PROVIDER.get());
+  }
+
+  public static AmazonRoute53 newRoute53Client(AWSCredentialsProvider provider) {
     AwsConfiguration config = config();
-    return newRoute53Client(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
+    return newRoute53Client(config, provider, NetflixEnvironment.region());
   }
 
   public static AmazonRoute53 newRoute53Client(
