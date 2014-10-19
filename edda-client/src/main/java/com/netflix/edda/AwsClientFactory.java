@@ -55,7 +55,7 @@ public class AwsClientFactory {
   private static final AtomicReference<AWSCredentialsProvider> DEFAULT_PROVIDER =
     new AtomicReference<AWSCredentialsProvider>(new DefaultAWSCredentialsProviderChain());
 
-  public static void setDefaultCredentialProvider(AWSCredentialsProvider p) {
+  public static void setDefaultCredentialsProvider(AWSCredentialsProvider p) {
     DEFAULT_PROVIDER.set(p);
   }
 
