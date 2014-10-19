@@ -36,14 +36,15 @@ interface AwsConfiguration extends IConfiguration {
   @DefaultValue("true")
   public boolean useEdda();
 
+/**
   /**
    * Should we funnel requests through admin application? This is only supported for the EC2 api
    * and will be ignored for all others.
-   */
   @DefaultValue("false")
   public boolean useAdmin();
 
-  /** URI to use when proxying write operations for EC2. */
+  /**
+   * URI to use when proxying write operations for EC2.
   @DefaultValue("niws://atlas_admin/api/v1/ec2/%s")
   public String ec2ProxyUri();
 
@@ -55,6 +56,7 @@ interface AwsConfiguration extends IConfiguration {
 
   @DefaultValue("")
   public String roleSessionName();
+*/
 
   @DefaultValue("niws://edda")
   public String url();

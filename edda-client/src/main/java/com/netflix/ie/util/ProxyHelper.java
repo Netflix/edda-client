@@ -36,7 +36,10 @@ public class ProxyHelper {
           return method.invoke(delegate, args);
         }
         catch(InvocationTargetException e) {
-          throw e.getCause();
+          Throwable t = e;
+          while (t != null && t.getClass().getName().startsWith("java.lang.reflect."))
+            t = t.getCause();
+          throw (t == null) ? e : t;
         }
       }
     };
@@ -68,7 +71,10 @@ public class ProxyHelper {
           throw new UnsupportedOperationException(ctype.getName() + "." + method.getName());
         }
         catch(InvocationTargetException e) {
-          throw e.getCause();
+          Throwable t = e;
+          while (t != null && t.getClass().getName().startsWith("java.lang.reflect."))
+            t = t.getCause();
+          throw (t == null) ? e : t;
         }
       }
     };

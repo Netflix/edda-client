@@ -15,6 +15,7 @@
  */
 package com.netflix.edda;
 
+import java.util.concurrent.atomic.AtomicReference;
 import com.amazonaws.ResponseMetadata;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.AmazonWebServiceClient;
@@ -22,12 +23,13 @@ import com.amazonaws.ClientConfiguration;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.auth.PropertiesCredentials;
-import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
-import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+//import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+//import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+//import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+//import com.amazonaws.auth.PropertiesCredentials;
+//import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
+//import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
@@ -50,23 +52,30 @@ public class AwsClientFactory {
     return Configuration.newProxy(AwsConfiguration.class, "netflix.edda.aws");
   }
 
+  private static final AtomicReference<AWSCredentialsProvider> DEFAULT_PROVIDER =
+    new AtomicReference<AWSCredentialsProvider>(new DefaultAWSCredentialsProviderChain());
+
+  public static void setDefaultCredentialProvider(AWSCredentialsProvider p) {
+    DEFAULT_PROVIDER.set(p);
+  }
+
+/**
   private static AWSCredentialsProvider credentialsProvider(AwsConfiguration config) {
     String t = config.credentialsProviderType();
+    AWSCredentialsProvider p = null
     if (t.equals("env"))
-      return new EnvironmentVariableCredentialsProvider();
-    else if (t.equals("role"))
-      return new STSAssumeRoleSessionCredentialsProvider(config.roleArn(), config.roleSessionName());
+      p = new EnvironmentVariableCredentialsProvider();
     else if (t.equals("instance"))
-      return new InstanceProfileCredentialsProvider();
+      p = new InstanceProfileCredentialsProvider();
     else if (t.equals("system"))
-      return new SystemPropertiesCredentialsProvider();
+      p = new SystemPropertiesCredentialsProvider();
     else if (t.startsWith("classpath:"))
-      return new ClasspathPropertiesFileCredentialsProvider(t.substring(10));
+      p = new ClasspathPropertiesFileCredentialsProvider(t.substring(10));
     else if (t.startsWith("file:")) {
       try {
         java.io.File f = new java.io.File(t.substring(7));
         final PropertiesCredentials cred = new PropertiesCredentials(f);
-        return new AWSCredentialsProvider() {
+        p = new AWSCredentialsProvider() {
           @Override
           public AWSCredentials getCredentials() { return cred; }
           @Override
@@ -77,8 +86,14 @@ public class AwsClientFactory {
         throw new IllegalArgumentException("file credentials provider failed [" + t + "]", e);
       }
     }
-    throw new IllegalArgumentException("unknown credentials provider type [" + t + "]");
+    else
+      throw new IllegalArgumentException("unknown credentials provider type [" + t + "]");
+
+    if (config.roleArn().length() > 0 && config.roleSessionName().length() > 0)
+      p = new STSAssumeRoleSessionCredentialsProvider(p, config.roleArn(), config.roleSessionName());
+    return p;
   }
+*/
 
   private static ClientConfiguration clientConfig(AwsConfiguration config) {
     return new ClientConfiguration()
@@ -90,7 +105,7 @@ public class AwsClientFactory {
 
   public static AmazonAutoScaling newAutoScalingClient() {
     AwsConfiguration config = config();
-    return newAutoScalingClient(config, credentialsProvider(config), NetflixEnvironment.region());
+    return newAutoScalingClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
   }
 
   public static AmazonAutoScaling newAutoScalingClient(
@@ -100,8 +115,6 @@ public class AwsClientFactory {
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("AutoScaling mock not yet supported");
-    if (config.useAdmin())
-      throw new UnsupportedOperationException("AutoScaling admin not yet supported");
     if (!config.wrapAwsClient())
       return new EddaAutoScalingClient(config).readOnly();
 
@@ -114,7 +127,7 @@ public class AwsClientFactory {
 
   public static AmazonCloudWatch newCloudWatchClient() {
     AwsConfiguration config = config();
-    return newCloudWatchClient(config, credentialsProvider(config), NetflixEnvironment.region());
+    return newCloudWatchClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
   }
 
   public static AmazonCloudWatch newCloudWatchClient(
@@ -124,8 +137,6 @@ public class AwsClientFactory {
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("CloudWatch mock not yet supported");
-    if (config.useAdmin())
-      throw new UnsupportedOperationException("CloudWatch admin not yet supported");
     if (!config.wrapAwsClient())
       return new EddaCloudWatchClient(config).readOnly();
 
@@ -138,7 +149,7 @@ public class AwsClientFactory {
 
   public static AmazonEC2 newEc2Client() {
     AwsConfiguration config = config();
-    return newEc2Client(config, credentialsProvider(config), NetflixEnvironment.region());
+    return newEc2Client(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
   }
 
   public static AmazonEC2 newEc2Client(
@@ -148,8 +159,6 @@ public class AwsClientFactory {
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("EC2 mock not yet supported");
-    if (config.useAdmin())
-      throw new UnsupportedOperationException("EC2 admin not yet supported");
     if (!config.wrapAwsClient())
       return new EddaEc2Client(config).readOnly();
 
@@ -162,7 +171,7 @@ public class AwsClientFactory {
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient() {
     AwsConfiguration config = config();
-    return newElasticLoadBalancingClient(config, credentialsProvider(config), NetflixEnvironment.region());
+    return newElasticLoadBalancingClient(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
@@ -172,8 +181,6 @@ public class AwsClientFactory {
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("ElasticLoadBalancing mock not yet supported");
-    if (config.useAdmin())
-      throw new UnsupportedOperationException("ElasticLoadBalancing admin not yet supported");
     if (!config.wrapAwsClient())
       return new EddaElasticLoadBalancingClient(config).readOnly();
 
@@ -186,7 +193,7 @@ public class AwsClientFactory {
 
   public static AmazonRoute53 newRoute53Client() {
     AwsConfiguration config = config();
-    return newRoute53Client(config, credentialsProvider(config), NetflixEnvironment.region());
+    return newRoute53Client(config, DEFAULT_PROVIDER.get(), NetflixEnvironment.region());
   }
 
   public static AmazonRoute53 newRoute53Client(
@@ -196,8 +203,6 @@ public class AwsClientFactory {
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("Route53 mock not yet supported");
-    if (config.useAdmin())
-      throw new UnsupportedOperationException("Route53 admin not yet supported");
     if (!config.wrapAwsClient())
       return new EddaRoute53Client(config).readOnly();
 
