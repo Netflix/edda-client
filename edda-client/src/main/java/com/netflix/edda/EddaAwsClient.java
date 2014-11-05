@@ -36,6 +36,8 @@ abstract public class EddaAwsClient {
     PlatformInitializer.loadResource("edda.niws.properties");
   }
 
+  public void shutdown() {}
+
   protected <T> T readOnly(Class<T> c) {
     return ProxyHelper.unsupported(c, this);
   }

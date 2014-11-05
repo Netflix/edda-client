@@ -55,7 +55,7 @@ public class NiwsHttpClient extends HttpClient {
     byte[] body,
     HttpConf conf
   ) {
-    if (method.equals("get")) {
+    if (method.toLowerCase().equals("get")) {
       return mkHttpResponse(uri, RxHttp.get(uri));
     }
     else {
