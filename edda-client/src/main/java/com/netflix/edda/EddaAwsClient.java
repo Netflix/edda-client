@@ -17,6 +17,7 @@ package com.netflix.edda;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -43,7 +44,7 @@ abstract public class EddaAwsClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  HttpResponse doGet(String uri) {
+  protected HttpResponse doGet(String uri) {
     HttpResponse res = Http.get(uri);
     if (res.status() != 200) {
       AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
@@ -55,7 +56,38 @@ abstract public class EddaAwsClient {
     return res;
   }
 
-  <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
+  protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
       return JsonHelper.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
+  }
+
+  protected void validateEmpty(String name, String s) {
+    if (s != null && s.length() > 0)
+      throw new UnsupportedOperationException(name + " not supported");
+  }
+
+  protected void validateNotEmpty(String name, String s) {
+    if (s == null || s.length() == 0)
+      throw new UnsupportedOperationException(name + " required");
+  }
+
+  protected <T> void validateEmpty(String name, List<T> list) {
+    if (list != null && list.size() > 0)
+      throw new UnsupportedOperationException(name + " not supported");
+  }
+
+  protected boolean shouldFilter(String s) {
+    return (s != null && s.length() > 0);
+  }
+
+  protected boolean shouldFilter(List<String> list) {
+    return (list != null && list.size() > 0);
+  }
+
+  protected boolean matches(String s, String v) {
+    return !shouldFilter(s) || s.equals(v);
+  }
+
+  protected boolean matches(List<String> list, String v) {
+    return !shouldFilter(list) || list.contains(v);
   }
 }

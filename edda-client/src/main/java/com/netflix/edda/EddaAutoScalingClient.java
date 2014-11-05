@@ -17,6 +17,7 @@ package com.netflix.edda;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -46,6 +47,17 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     String url = config.url() + "/api/v2/aws/autoScalingGroups;_expand";
     try {
       List<AutoScalingGroup> autoScalingGroups = parse(ref, doGet(url).body());
+
+      List<String> names = request.getAutoScalingGroupNames();
+      if (shouldFilter(names)) {
+        List<AutoScalingGroup> asgs = new ArrayList<AutoScalingGroup>();
+        for (AutoScalingGroup asg : autoScalingGroups) {
+          if (matches(names, asg.getAutoScalingGroupName()))
+            asgs.add(asg);
+        }
+        autoScalingGroups = asgs;
+      }
+
       return new DescribeAutoScalingGroupsResult()
         .withAutoScalingGroups(autoScalingGroups);
     }
@@ -63,6 +75,17 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     String url = config.url() + "/api/v2/aws/launchConfigurations;_expand";
     try {
       List<LaunchConfiguration> launchConfigurations = parse(ref, doGet(url).body());
+
+      List<String> names = request.getLaunchConfigurationNames();
+      if (shouldFilter(names)) {
+        List<LaunchConfiguration> lcs = new ArrayList<LaunchConfiguration>();
+        for (LaunchConfiguration lc : launchConfigurations) {
+          if (matches(names, lc.getLaunchConfigurationName()))
+            lcs.add(lc);
+        }
+        launchConfigurations = lcs;
+      }
+
       return new DescribeLaunchConfigurationsResult()
         .withLaunchConfigurations(launchConfigurations);
     }
@@ -80,6 +103,18 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     String url = config.url() + "/api/v2/aws/scalingPolicies;_expand";
     try {
       List<ScalingPolicy> scalingPolicies = parse(ref, doGet(url).body());
+
+      String asg = request.getAutoScalingGroupName();
+      List<String> names = request.getPolicyNames();
+      if (shouldFilter(asg) || shouldFilter(names)) {
+        List<ScalingPolicy> sps = new ArrayList<ScalingPolicy>();
+        for (ScalingPolicy sp : scalingPolicies) {
+          if (matches(asg, sp.getAutoScalingGroupName()) && matches(names, sp.getPolicyName()))
+            sps.add(sp);
+        }
+        scalingPolicies = sps;
+      }
+
       return new DescribePoliciesResult()
         .withScalingPolicies(scalingPolicies);
     }

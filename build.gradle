@@ -42,8 +42,8 @@ subprojects {
   }
 
   dependencies {
-    compile 'com.netflix.awsobjectmapper:awsobjectmapper:1.8.10.0'
-    compile 'com.netflix.spectator:spectator-nflx:0.12'
+    compile 'com.netflix.awsobjectmapper:awsobjectmapper:1.9.3.0'
+    compile 'com.netflix.spectator:spectator-nflx:0.15-SNAPSHOT'
     compile 'commons-io:commons-io:2.4'
     testCompile 'junit:junit:4.10'
     testCompile 'com.google.guava:guava:14.0.1'

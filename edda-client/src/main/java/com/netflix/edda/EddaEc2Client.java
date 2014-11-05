@@ -17,6 +17,7 @@ package com.netflix.edda;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -42,10 +43,25 @@ public class EddaEc2Client extends EddaAwsClient {
   }
 
   public DescribeImagesResult describeImages(DescribeImagesRequest request) {
+    validateEmpty("ExecutableUsers", request.getExecutableUsers());
+    validateEmpty("Filter", request.getFilters());
+
     TypeReference<List<Image>> ref = new TypeReference<List<Image>>() {};
     String url = config.url() + "/api/v2/aws/images;_expand";
     try {
       List<Image> images = parse(ref, doGet(url).body());
+
+      List<String> owners = request.getOwners();
+      List<String> ids = request.getImageIds();
+      if (shouldFilter(owners) || shouldFilter(ids)) {
+        List<Image> is = new ArrayList<Image>();
+        for (Image i : images) {
+          if (matches(owners, i.getOwnerId()) && matches(ids, i.getImageId()))
+            is.add(i);
+        }
+        images = is;
+      }
+
       return new DescribeImagesResult()
         .withImages(images);
     }
@@ -59,10 +75,27 @@ public class EddaEc2Client extends EddaAwsClient {
   }
 
   public DescribeInstancesResult describeInstances(DescribeInstancesRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
     TypeReference<List<Reservation>> ref = new TypeReference<List<Reservation>>() {};
     String url = config.url() + "/api/v2/aws/instances;_expand";
     try {
       List<Reservation> reservations = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getInstanceIds();
+      if (shouldFilter(ids)) {
+        List<Reservation> rs = new ArrayList<Reservation>();
+        for (Reservation r : reservations) {
+          List<Instance> is = new ArrayList<Instance>();
+          for (Instance i : r.getInstances()) {
+            if (matches(ids, i.getInstanceId()))
+              is.add(i);
+          }
+          if (is.size() > 0)
+            rs.add(r.withInstances(is));
+        }
+        reservations = rs;
+      }
       return new DescribeInstancesResult()
         .withReservations(reservations);
     }
@@ -76,29 +109,26 @@ public class EddaEc2Client extends EddaAwsClient {
   }
 
   public DescribeSecurityGroupsResult describeSecurityGroups(DescribeSecurityGroupsRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
     TypeReference<List<SecurityGroup>> ref = new TypeReference<List<SecurityGroup>>() {};
     String url = config.url() + "/api/v2/aws/securityGroups;_expand";
     try {
       List<SecurityGroup> securityGroups = parse(ref, doGet(url).body());
+
+      List<String> names = request.getGroupNames();
+      List<String> ids = request.getGroupIds();
+      if (shouldFilter(names) || shouldFilter(ids)) {
+        List<SecurityGroup> sgs = new ArrayList<SecurityGroup>();
+        for (SecurityGroup sg : sgs) {
+          if (matches(names, sg.getGroupName()) && matches(ids, sg.getGroupId()))
+            sgs.add(sg);
+        }
+        securityGroups = sgs;
+      }
+
       return new DescribeSecurityGroupsResult()
         .withSecurityGroups(securityGroups);
-    }
-    catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
-    }
-  }
-
-  public DescribeSnapshotsResult describeSnapshots() {
-    return describeSnapshots(new DescribeSnapshotsRequest());
-  }
-
-  public DescribeSnapshotsResult describeSnapshots(DescribeSnapshotsRequest request) {
-    TypeReference<List<Snapshot>> ref = new TypeReference<List<Snapshot>>() {};
-    String url = config.url() + "/api/v2/aws/snapshots;_expand";
-    try {
-      List<Snapshot> snapshots = parse(ref, doGet(url).body());
-      return new DescribeSnapshotsResult()
-        .withSnapshots(snapshots);
     }
     catch (IOException e) {
       throw new AmazonClientException("Faled to parse " + url, e);
@@ -110,10 +140,23 @@ public class EddaEc2Client extends EddaAwsClient {
   }
 
   public DescribeSubnetsResult describeSubnets(DescribeSubnetsRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
     TypeReference<List<Subnet>> ref = new TypeReference<List<Subnet>>() {};
     String url = config.url() + "/api/v2/aws/subnets;_expand";
     try {
       List<Subnet> subnets = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getSubnetIds();
+      if (shouldFilter(ids)) {
+        List<Subnet> ss = new ArrayList<Subnet>();
+        for (Subnet s : subnets) {
+          if (matches(ids, s.getSubnetId()))
+            ss.add(s);
+        }
+        subnets = ss;
+      }
+
       return new DescribeSubnetsResult()
         .withSubnets(subnets);
     }
@@ -127,10 +170,23 @@ public class EddaEc2Client extends EddaAwsClient {
   }
 
   public DescribeVolumesResult describeVolumes(DescribeVolumesRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
     TypeReference<List<Volume>> ref = new TypeReference<List<Volume>>() {};
     String url = config.url() + "/api/v2/aws/volumes;_expand";
     try {
       List<Volume> volumes = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getVolumeIds();
+      if (shouldFilter(ids)) {
+        List<Volume> vs = new ArrayList<Volume>();
+        for (Volume v : volumes) {
+          if (matches(ids, v.getVolumeId()))
+            vs.add(v);
+        }
+        volumes = vs;
+      }
+
       return new DescribeVolumesResult()
         .withVolumes(volumes);
     }

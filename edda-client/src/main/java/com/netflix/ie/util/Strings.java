@@ -85,6 +85,16 @@ public class Strings {
   private static final DateTimeFormatter isoDateFmt = ISODateTimeFormat.dateTimeParser().withZone(DateTimeZone.UTC);
   private static final PeriodFormatter isoPeriodFmt = ISOPeriodFormat.standard();
 
+  public static String join(java.util.List<String> list, String separator) {
+    StringBuilder sb = new StringBuilder();
+    String sep = "";
+    for (String s : list) {
+        sb.append(sep).append(s);
+        sep = separator;
+    }
+    return sb.toString();
+  }
+
   public static boolean conversionExists(Class c) {
     return c == String.class ||
     c == boolean.class ||

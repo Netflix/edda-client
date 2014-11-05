@@ -17,6 +17,7 @@ package com.netflix.edda;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -41,14 +42,31 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
   }
 
   public DescribeInstanceHealthResult describeInstanceHealth(DescribeInstanceHealthRequest request) {
+    validateNotEmpty("LoadBalancerName", request.getLoadBalancerName());
+
     TypeReference<InstanceStateView> ref = new TypeReference<InstanceStateView>() {};
     String loadBalancerName = request.getLoadBalancerName();
-    if (loadBalancerName == null)
-      throw new AmazonClientException("Missing load balancer name");
     
     String url = config.url() + "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand";
     try {
       InstanceStateView instanceStateView = parse(ref, doGet(url).body());
+      List<InstanceState> instanceStates = instanceStateView.getInstances();
+
+      List<Instance> instances = request.getInstances();
+      List<String> ids = new ArrayList<String>();
+      if (instances != null) {
+        for (Instance i : instances)
+          ids.add(i.getInstanceId());
+      }
+      if (shouldFilter(ids)) {
+        List<InstanceState> iss = new ArrayList<InstanceState>();
+        for (InstanceState is : instanceStates) {
+          if (matches(ids, is.getInstanceId()))
+            iss.add(is);
+        }
+        instanceStates = iss;
+      }
+
       return new DescribeInstanceHealthResult()
         .withInstanceStates(instanceStateView.getInstances());
     }
@@ -66,6 +84,17 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
     String url = config.url() + "/api/v2/aws/loadBalancers;_expand";
     try {
       List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, doGet(url).body());
+
+      List<String> names = request.getLoadBalancerNames();
+      if (shouldFilter(names)) {
+        List<LoadBalancerDescription> lbs = new ArrayList<LoadBalancerDescription>();
+        for (LoadBalancerDescription lb : loadBalancerDescriptions) {
+          if (matches(names, lb.getLoadBalancerName()))
+            lbs.add(lb);
+        }
+        loadBalancerDescriptions = lbs;
+      }
+
       return new DescribeLoadBalancersResult()
         .withLoadBalancerDescriptions(loadBalancerDescriptions);
     }
@@ -75,10 +104,10 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
   }
 
   public DescribeLoadBalancerAttributesResult describeLoadBalancerAttributes(DescribeLoadBalancerAttributesRequest request) {
+    validateNotEmpty("LoadBalancerName", request.getLoadBalancerName());
+
     TypeReference<LoadBalancerAttributesView> ref = new TypeReference<LoadBalancerAttributesView>() {};
     String loadBalancerName = request.getLoadBalancerName();
-    if (loadBalancerName == null)
-      throw new AmazonClientException("Missing load balancer name");
 
     String url = config.url() + "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand";
     try {

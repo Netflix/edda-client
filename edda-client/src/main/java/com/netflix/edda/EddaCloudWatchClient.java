@@ -17,6 +17,7 @@ package com.netflix.edda;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -42,10 +43,25 @@ public class EddaCloudWatchClient extends EddaAwsClient {
   }
 
   public DescribeAlarmsResult describeAlarms(DescribeAlarmsRequest request) {
+    validateEmpty("ActionPrefix", request.getActionPrefix());
+    validateEmpty("AlarmNamePrefix", request.getAlarmNamePrefix());
+
     TypeReference<List<MetricAlarm>> ref = new TypeReference<List<MetricAlarm>>() {};
     String url = config.url() + "/api/v2/aws/alarms;_expand";
     try {
       List<MetricAlarm> metricAlarms = parse(ref, doGet(url).body());
+
+      List<String> names = request.getAlarmNames();
+      String state = request.getStateValue();
+      if (shouldFilter(names) || shouldFilter(state)) {
+        List<MetricAlarm> mas = new ArrayList<MetricAlarm>();
+        for (MetricAlarm ma : metricAlarms) {
+          if (matches(names, ma.getAlarmName()) && matches(state, ma.getStateValue()))
+            mas.add(ma);
+        }
+        metricAlarms = mas;
+      }
+
       return new DescribeAlarmsResult()
         .withMetricAlarms(metricAlarms);
     }

@@ -55,10 +55,11 @@ public class EddaRoute53Client extends EddaAwsClient {
   }
 
   public ListResourceRecordSetsResult listResourceRecordSets(ListResourceRecordSetsRequest request) {
+    validateNotEmpty("HostedZoneId", request.getHostedZoneId());
+
     TypeReference<List<ResourceRecordSet>> ref = new TypeReference<List<ResourceRecordSet>>() {};
     String hostedZoneId = request.getHostedZoneId();
-    if (hostedZoneId == null)
-      throw new AmazonClientException("Missing hosted zone id");
+
     String url = config.url() + "/api/v2/aws/hostedRecords;_expand;zone.id=" + hostedZoneId;
     try {
       List<ResourceRecordSet> resourceRecordSets = parse(ref, doGet(url).body());

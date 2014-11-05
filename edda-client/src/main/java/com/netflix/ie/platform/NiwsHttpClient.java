@@ -29,10 +29,14 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import com.google.common.base.Joiner;
 
-import com.netflix.client.ClientException;
-import com.netflix.client.http.HttpRequest;
-import com.netflix.niws.client.http.RestClient;
-import com.netflix.spectator.ribbon.RestClientFactory;
+import rx.Observable;
+import rx.functions.Func1;
+
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import io.reactivex.netty.protocol.http.client.HttpResponseHeaders;
+
+import com.netflix.spectator.nflx.RxHttp;
 
 import com.netflix.ie.ipc.HttpClient;
 import com.netflix.ie.ipc.HttpConf;
@@ -51,78 +55,46 @@ public class NiwsHttpClient extends HttpClient {
     byte[] body,
     HttpConf conf
   ) {
-    URI httpUri = uri;
-    com.netflix.client.http.HttpResponse response = null;
-    try {
-      if (uri.getScheme().equals("niws"))
-        httpUri = new URI(fixPath(uri.getRawPath()) + fix("?", uri.getRawQuery()));
-      if (LOGGER.isDebugEnabled())
-        LOGGER.debug(method + " " + uri + " => " + httpUri);
-      HttpRequest.Builder builder = new HttpRequest.Builder()
-        .verb(HttpRequest.Verb.valueOf(method))
-        .uri(httpUri)
-        .entity(body);
-      for (Map.Entry<String,String> e : conf.headers().entrySet())
-        builder.header(e.getKey(), e.getValue());
-      addTraceHeaders(builder);
-
-      RestClient httpClient = getClient(uri);
-
-      response = (httpUri.isAbsolute())
-        ? httpClient.execute(builder.build())
-        : httpClient.executeWithLoadBalancer(builder.build());
+    if (method.equals("get")) {
+      return mkHttpResponse(uri, RxHttp.get(uri));
     }
-    catch (ClientException e) {
-      return new HttpResponse(httpUri, e.getErrorCode(), e);
+    else {
+      throw new UnsupportedOperationException(method + " method not supported");
     }
-    catch (Exception e) {
-      return new HttpResponse(httpUri, 400, e);
-    }
+  }
 
-    try {
-      int status = response.getStatus();
-      Map<String,String> headers = new HashMap<String,String>();
-      for (Map.Entry<String,Collection<String>> e : response.getHeaders().entrySet()) {
-        headers.put(e.getKey(), Joiner.on(",").join(e.getValue()));
+  private HttpResponse mkHttpResponse(
+    final URI uri,
+    Observable<HttpClientResponse<ByteBuf>> response
+  ) {
+    return response.flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<HttpResponse>>() {
+      @Override
+      public Observable<HttpResponse> call(final HttpClientResponse<ByteBuf> r) {
+        return r.getContent().map(new Func1<ByteBuf,HttpResponse>() {
+          @Override
+          public HttpResponse call(ByteBuf b) {
+            try {
+              HttpResponseHeaders headers = r.getHeaders();
+              Map<String,String> headerMap = new HashMap<String,String>();
+              for (String name : headers.names()) {
+                 headerMap.put(name, Joiner.on(",").join(headers.getAll(name)));
+              }
+              java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream(b.capacity());
+              b.readBytes(bout, b.capacity());
+              bout.close();
+              return new HttpResponse(
+                uri,
+                r.getStatus().code(),
+                headerMap,
+                bout.toByteArray()
+              );
+            }
+            catch (Exception e) {
+              return new HttpResponse(uri, 400, e);
+            }
+          }
+        });
       }
-      byte[] resBody = IOUtils.toByteArray(response.getInputStream());
-      return new HttpResponse(httpUri, status, headers, resBody);
-    }
-    catch (Exception e) {
-      return new HttpResponse(httpUri, 500, e);
-    }
-    finally {
-      response.close();
-    }
-  }
-
-  private String getHost(URI uri) {
-    Matcher m = NIWS_URI.matcher(uri.toString());
-    if (m.matches()) return m.group(1);
-    return uri.getHost();
-  }
-
-  private RestClient getClient(URI uri) {
-    Matcher m = NIWS_URI.matcher(uri.toString());
-    if (m.matches()) return RestClientFactory.getClient(m.group(1));
-    return RestClientFactory.getClient("default");
-  }
-
-  private String fixPath(String path) {
-    return (path.startsWith("/http://") || path.startsWith("/https://")) ? path.substring(1) : path;
-  }
-
-  private String fix(String sep, String str) {
-    if (str == null) return "";
-    return sep + str;
-  }
-
-  private void addTraceHeaders(HttpRequest.Builder builder) {
-    builder.header("X-Netflix.environment", NetflixEnvironment.env());
-    builder.header("X-Netflix.client.requestStartTime", String.valueOf(System.currentTimeMillis()));
-    builder.header("X-Netflix.client.appid", NetflixEnvironment.app());
-    builder.header("X-Netflix.client.asg.name", NetflixEnvironment.asg());
-    builder.header("X-Netflix.client.az", NetflixEnvironment.zone());
-    builder.header("X-Netflix.client.instid", NetflixEnvironment.instanceId());
+    }).toBlocking().single();
   }
 }

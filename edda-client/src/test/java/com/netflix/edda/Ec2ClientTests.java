@@ -47,5 +47,16 @@ public class Ec2ClientTests {
     AmazonEC2 client = AwsClientFactory.newEc2Client();
     DescribeSubnetsResult res = client.describeSubnets();
     assertEquals("size", res.getSubnets().size(), 8);
+
+    String id = "subnet-30ef1559";
+    res = client.describeSubnets(new DescribeSubnetsRequest().withSubnetIds(id));
+    assertEquals("size", res.getSubnets().size(), 1);
+    assertEquals("id", res.getSubnets().get(0).getSubnetId(), id);
+
+    String id2 = "subnet-0962c560";
+    res = client.describeSubnets(new DescribeSubnetsRequest().withSubnetIds(id, id2));
+    assertEquals("size", res.getSubnets().size(), 2);
+    assertEquals("id1", res.getSubnets().get(0).getSubnetId(), id);
+    assertEquals("id2", res.getSubnets().get(1).getSubnetId(), id2);
   }
 }
