@@ -26,14 +26,14 @@ import com.amazonaws.AmazonServiceException;
 import com.netflix.ie.ipc.Http;
 import com.netflix.ie.ipc.HttpResponse;
 import com.netflix.ie.util.ProxyHelper;
-import com.netflix.ie.platform.PlatformInitializer;
+import com.netflix.ie.platform.PropertyFileLoader;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
 
   public EddaAwsClient(AwsConfiguration config) {
     this.config = config;
-    PlatformInitializer.loadResource("edda.niws.properties");
+    PropertyFileLoader.loadResource("edda.niws.properties");
   }
 
   public void shutdown() {}
@@ -47,7 +47,7 @@ abstract public class EddaAwsClient {
   }
 
   protected HttpResponse doGet(String uri) {
-    HttpResponse res = Http.get(uri);
+    HttpResponse res = Http.getClient().get(uri);
     if (res.status() != 200) {
       AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
       e.setStatusCode(res.status());

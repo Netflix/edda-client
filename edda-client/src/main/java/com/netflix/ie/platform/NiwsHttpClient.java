@@ -38,12 +38,12 @@ import io.reactivex.netty.protocol.http.client.HttpResponseHeaders;
 
 import com.netflix.spectator.nflx.RxHttp;
 
-import com.netflix.ie.ipc.HttpClient;
+import com.netflix.ie.ipc.AbstractHttpClient;
 import com.netflix.ie.ipc.HttpConf;
 import com.netflix.ie.ipc.HttpException;
 import com.netflix.ie.ipc.HttpResponse;
 
-public class NiwsHttpClient extends HttpClient {
+public class NiwsHttpClient extends AbstractHttpClient {
   private static Logger LOGGER = LoggerFactory.getLogger(NiwsHttpClient.class);
 
   private static Pattern NIWS_URI = Pattern.compile("niws://([^/]+)(.*)");

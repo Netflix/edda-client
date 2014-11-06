@@ -18,24 +18,39 @@ package com.netflix.ie.ipc;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+@Singleton
 public class Http {
-  private Http() {}
+  private final static Logger LOGGER = LoggerFactory.getLogger(Http.class);
 
-  private static final AtomicReference<HttpClient> clientRef =
-    new AtomicReference<HttpClient>(new SimpleHttpClient());
+  @Inject
+  private HttpClient httpClient;
 
-  public static HttpClient getClient() { return clientRef.get(); }
-  public static void setClient(HttpClient c) { clientRef.set(c); }
-
-  public static HttpResponse get(String uri) {
-    return clientRef.get().get(uri);
+  private final AtomicReference<HttpClient> clientRef = new AtomicReference<HttpClient>(null);
+ 
+  private Http() {
+    if (httpClient == null) {
+      LOGGER.debug("httpClient not defined - using SimpleHttpClient");
+      clientRef.set(new SimpleHttpClient());
+    }
+    else
+      clientRef.set(httpClient);
   }
 
-  public static HttpResponse get(String uri, HttpConf conf) {
-    return clientRef.get().get(uri, conf);
+  private static class SingletonHolder {
+    private static final Http INSTANCE = new Http();
   }
 
-  public static HttpResponse get(URI uri, HttpConf conf) {
-    return clientRef.get().get(uri, conf);
+  public static void setClient(HttpClient client) {
+    SingletonHolder.INSTANCE.clientRef.set(client);
+  }
+
+  public static HttpClient getClient() {
+    return SingletonHolder.INSTANCE.clientRef.get();
   }
 }

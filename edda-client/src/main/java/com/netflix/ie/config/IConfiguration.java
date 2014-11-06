@@ -15,6 +15,11 @@
  */
 package com.netflix.ie.config;
 
+import com.google.inject.ImplementedBy;
+
+import com.netflix.ie.platform.PersistedPropertiesConfiguration;
+
+@ImplementedBy(PersistedPropertiesConfiguration.class)
 public interface IConfiguration {
   public String get(String key);
 }

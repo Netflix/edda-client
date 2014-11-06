@@ -18,13 +18,31 @@ package com.netflix.ie.ipc;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.google.inject.ImplementedBy;
+public abstract class AbstractHttpClient implements HttpClient {
+  @Override
+  public HttpResponse get(String uri) {
+    return get(uri, new HttpConf());
+  }
 
-import com.netflix.ie.platform.NiwsHttpClient;
+  @Override
+  public HttpResponse get(String uri, HttpConf conf) {
+    try {
+      return get(new URI(uri), conf);
+    }
+    catch (URISyntaxException e) {
+      return new HttpResponse(uri, 400, e);
+    }
+  }
 
-@ImplementedBy(NiwsHttpClient.class)
-public interface HttpClient {
-  public HttpResponse get(String uri);
-  public HttpResponse get(String uri, HttpConf conf);
-  public HttpResponse get(URI uri, HttpConf conf);
+  @Override
+  public HttpResponse get(URI uri, HttpConf conf) {
+    return execute("GET", uri, null, conf);
+  }
+
+  abstract protected HttpResponse execute(
+    String method,
+    URI uri,
+    byte[] body,
+    HttpConf conf
+  );
 }

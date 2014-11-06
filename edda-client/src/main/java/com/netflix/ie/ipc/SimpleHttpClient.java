@@ -33,7 +33,7 @@ import com.google.common.base.Joiner;
 
 import com.netflix.ie.util.Hash;
 
-public class SimpleHttpClient extends HttpClient {
+public class SimpleHttpClient extends AbstractHttpClient {
   private final static Logger LOGGER = LoggerFactory.getLogger(SimpleHttpClient.class);
 
   @Override

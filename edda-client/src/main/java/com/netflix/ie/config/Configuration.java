@@ -21,18 +21,40 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.netflix.ie.util.Strings;
 
+@Singleton
 public final class Configuration {
-  private Configuration() {}
+  private final static Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-  public static String defaultPrefix = "netflix";
-  public static IConfiguration defaultConfig = new SystemPropertyConfiguration(defaultPrefix);
-  private static AtomicReference<IConfiguration> backingStoreRef =
-    new AtomicReference<IConfiguration>(defaultConfig);
+  @Inject
+  private IConfiguration iConfiguration;
+
+  private final AtomicReference<IConfiguration> backingStoreRef =
+    new AtomicReference<IConfiguration>(null);
+
+  private Configuration() {
+    if (iConfiguration == null) {
+      LOGGER.debug("iConfiguration not defined - using SystemPropertyConfiguration");
+      backingStoreRef.set(new SystemPropertyConfiguration("netflix"));
+    }
+    else
+      backingStoreRef.set(iConfiguration);
+  }
+
+  private static class SingletonHolder {
+    private static final Configuration INSTANCE = new Configuration();
+  }
+
 
   public static void setBackingStore(IConfiguration c) {
-    backingStoreRef.set(c);
+    SingletonHolder.INSTANCE.backingStoreRef.set(c);
   }
 
   public static <T> T apply(Class<T> ctype) {
@@ -42,7 +64,7 @@ public final class Configuration {
   }
 
   public static <T> T newProxy(Class<T> ctype, String prefix) {
-    return (T) newProxyImpl(ctype, prefix, backingStoreRef.get());
+    return (T) newProxyImpl(ctype, prefix, SingletonHolder.INSTANCE.backingStoreRef.get());
   }
 
   @SuppressWarnings("unchecked")
