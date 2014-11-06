@@ -120,7 +120,7 @@ public class EddaEc2Client extends EddaAwsClient {
       List<String> ids = request.getGroupIds();
       if (shouldFilter(names) || shouldFilter(ids)) {
         List<SecurityGroup> sgs = new ArrayList<SecurityGroup>();
-        for (SecurityGroup sg : sgs) {
+        for (SecurityGroup sg : securityGroups) {
           if (matches(names, sg.getGroupName()) && matches(ids, sg.getGroupId()))
             sgs.add(sg);
         }
