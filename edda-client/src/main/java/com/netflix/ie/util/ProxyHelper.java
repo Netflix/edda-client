@@ -23,6 +23,13 @@ import java.lang.reflect.Proxy;
 public class ProxyHelper {
   private ProxyHelper() {}
 
+  private static Throwable findCause(Throwable e) {
+    Throwable t = e;
+    while (t != null && t.getClass().getName().startsWith("java.lang.reflect."))
+      t = t.getCause();
+    return (t == null) ? e : t;
+  }
+
   @SuppressWarnings("unchecked")
   public static <T> T wrapper(final Class<T> ctype, final T delegate, final Object overrides) {
     InvocationHandler handler = new InvocationHandler() {
@@ -33,13 +40,15 @@ public class ProxyHelper {
           return m.invoke(overrides, args);
         }
         catch(NoSuchMethodException e) {
-          return method.invoke(delegate, args);
+          try {
+            return method.invoke(delegate, args);
+          }
+          catch (Throwable t) {
+            throw findCause(t);
+          }
         }
-        catch(InvocationTargetException e) {
-          Throwable t = e;
-          while (t != null && t.getClass().getName().startsWith("java.lang.reflect."))
-            t = t.getCause();
-          throw (t == null) ? e : t;
+        catch(Throwable t) {
+          throw findCause(t);
         }
       }
     };
@@ -70,11 +79,8 @@ public class ProxyHelper {
         catch(NoSuchMethodException e) {
           throw new UnsupportedOperationException(ctype.getName() + "." + method.getName());
         }
-        catch(InvocationTargetException e) {
-          Throwable t = e;
-          while (t != null && t.getClass().getName().startsWith("java.lang.reflect."))
-            t = t.getCause();
-          throw (t == null) ? e : t;
+        catch(Throwable t) {
+          throw findCause(t);
         }
       }
     };
