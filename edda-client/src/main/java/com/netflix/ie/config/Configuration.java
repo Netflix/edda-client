@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.netflix.ie.platform.PersistedPropertiesConfiguration;
 import com.netflix.ie.util.Strings;
 
 @Singleton
@@ -41,11 +42,13 @@ public final class Configuration {
 
   private Configuration() {
     if (iConfiguration == null) {
-      LOGGER.debug("iConfiguration not defined - using SystemPropertyConfiguration");
-      backingStoreRef.set(new SystemPropertyConfiguration("netflix"));
+      LOGGER.debug("iConfiguration not defined - using PersistedPropertiesConfiguration");
+      backingStoreRef.set(new PersistedPropertiesConfiguration());
     }
-    else
+    else {
+      LOGGER.debug("iConfiguration defined - using " + iConfiguration);
       backingStoreRef.set(iConfiguration);
+    }
   }
 
   private static class SingletonHolder {

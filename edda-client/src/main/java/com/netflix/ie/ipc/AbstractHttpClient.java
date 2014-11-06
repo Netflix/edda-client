@@ -38,11 +38,4 @@ public abstract class AbstractHttpClient implements HttpClient {
   public HttpResponse get(URI uri, HttpConf conf) {
     return execute("GET", uri, null, conf);
   }
-
-  abstract protected HttpResponse execute(
-    String method,
-    URI uri,
-    byte[] body,
-    HttpConf conf
-  );
 }

@@ -42,25 +42,30 @@ import com.netflix.ie.ipc.AbstractHttpClient;
 import com.netflix.ie.ipc.HttpConf;
 import com.netflix.ie.ipc.HttpException;
 import com.netflix.ie.ipc.HttpResponse;
+import com.netflix.ie.ipc.HttpClient;
+import com.netflix.ie.ipc.SimpleHttpClient;
 
 public class NiwsHttpClient extends AbstractHttpClient {
-  private static Logger LOGGER = LoggerFactory.getLogger(NiwsHttpClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NiwsHttpClient.class);
 
-  private static Pattern NIWS_URI = Pattern.compile("niws://([^/]+)(.*)");
+  private static final Pattern NIWS_URI = Pattern.compile("niws://([^/]+)(.*)");
+
+  private static final HttpClient SIMPLE_HTTP_CLIENT = new SimpleHttpClient();
 
   @Override
-  protected HttpResponse execute(
+  public HttpResponse execute(
     String method,
     URI uri,
     byte[] body,
     HttpConf conf
   ) {
-    if (method.toLowerCase().equals("get")) {
+    if ("file".equals(uri.getScheme().toLowerCase()))
+      return SIMPLE_HTTP_CLIENT.execute(method, uri, body, conf);
+
+    if ("get".equals(method.toLowerCase()))
       return mkHttpResponse(uri, RxHttp.get(uri));
-    }
-    else {
-      throw new UnsupportedOperationException(method + " method not supported");
-    }
+
+    throw new UnsupportedOperationException("http request not supported: [" + method + "] " + uri);
   }
 
   private HttpResponse mkHttpResponse(

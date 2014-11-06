@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.netflix.ie.platform.NiwsHttpClient;
+
 @Singleton
 public class Http {
   private final static Logger LOGGER = LoggerFactory.getLogger(Http.class);
@@ -35,11 +37,13 @@ public class Http {
  
   private Http() {
     if (httpClient == null) {
-      LOGGER.debug("httpClient not defined - using SimpleHttpClient");
-      clientRef.set(new SimpleHttpClient());
+      LOGGER.debug("httpClient not defined - using NiwsHttpClient");
+      clientRef.set(new NiwsHttpClient());
     }
-    else
+    else {
+      LOGGER.debug("httpClient defined - using " + httpClient);
       clientRef.set(httpClient);
+    }
   }
 
   private static class SingletonHolder {

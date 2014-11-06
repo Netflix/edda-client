@@ -27,4 +27,5 @@ public interface HttpClient {
   public HttpResponse get(String uri);
   public HttpResponse get(String uri, HttpConf conf);
   public HttpResponse get(URI uri, HttpConf conf);
+  public HttpResponse execute(String method, URI uri, byte[] body, HttpConf conf);
 }

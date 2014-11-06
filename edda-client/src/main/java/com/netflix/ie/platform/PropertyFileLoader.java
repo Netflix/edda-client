@@ -46,8 +46,10 @@ public class PropertyFileLoader {
       AbstractConfiguration config = ConfigurationManager.getConfigInstance();
       for (Map.Entry<Object,Object> e : props.entrySet()) {
         String key = e.getKey().toString();
-        if (config.getProperty(key) == null)
+        if (config.getProperty(key) == null) {
+          LOGGER.debug("setting property " + key + "=" + e.getValue());
           config.setProperty(key, e.getValue());
+        }
       }
       resources.add(resource);
     }

@@ -37,7 +37,7 @@ public class SimpleHttpClient extends AbstractHttpClient {
   private final static Logger LOGGER = LoggerFactory.getLogger(SimpleHttpClient.class);
 
   @Override
-  protected HttpResponse execute(
+  public HttpResponse execute(
     String method,
     URI uri,
     byte[] body,
