@@ -83,7 +83,7 @@ public class NiwsHttpClient extends AbstractHttpClient {
             @Override
             public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf b) {
               try {
-                b.readBytes(out, b.capacity());
+                b.readBytes(out, b.readableBytes());
               }
               catch(IOException e) {
                 Observable.error(e);
