@@ -27,7 +27,7 @@ public class HttpResponse {
   private final int status;
   private final Map<String,String> headers;
   private final byte[] body;
-  private final Exception error;
+  private final Throwable error;
 
   // lazy val
   private volatile int bitmap$0;
@@ -45,11 +45,11 @@ public class HttpResponse {
     this.error = null;
   }
 
-  public HttpResponse(URI uri, int status, Exception e) {
+  public HttpResponse(URI uri, int status, Throwable e) {
     this(uri.toString(), status, e);
   }
 
-  public HttpResponse(String uri, int status, Exception e) {
+  public HttpResponse(String uri, int status, Throwable e) {
     this.uri = uri;
     this.status = status;
     this.headers = Collections.emptyMap();
@@ -73,7 +73,7 @@ public class HttpResponse {
     return Arrays.copyOf(body, body.length);
   }
 
-  public Exception error() {
+  public Throwable error() {
     return error;
   }
 

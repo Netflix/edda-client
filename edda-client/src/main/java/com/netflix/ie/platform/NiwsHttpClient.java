@@ -15,10 +15,12 @@
  */
 package com.netflix.ie.platform;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ import com.google.common.base.Joiner;
 
 import rx.Observable;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -75,18 +78,27 @@ public class NiwsHttpClient extends AbstractHttpClient {
     return response.flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<HttpResponse>>() {
       @Override
       public Observable<HttpResponse> call(final HttpClientResponse<ByteBuf> r) {
-        return r.getContent().map(new Func1<ByteBuf,HttpResponse>() {
-          @Override
-          public HttpResponse call(ByteBuf b) {
-            try {
+        return r.getContent()
+          .reduce(new ByteArrayOutputStream(), new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
+            @Override
+            public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf b) {
+              try {
+                b.readBytes(out, b.capacity());
+              }
+              catch(IOException e) {
+                Observable.error(e);
+              }
+              return out;
+            }
+          })
+          .map(new Func1<ByteArrayOutputStream,HttpResponse>() {
+            @Override
+            public HttpResponse call(ByteArrayOutputStream bout) {
               HttpResponseHeaders headers = r.getHeaders();
               Map<String,String> headerMap = new HashMap<String,String>();
               for (String name : headers.names()) {
                  headerMap.put(name, Joiner.on(",").join(headers.getAll(name)));
               }
-              java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream(b.capacity());
-              b.readBytes(bout, b.capacity());
-              bout.close();
               return new HttpResponse(
                 uri,
                 r.getStatus().code(),
@@ -94,11 +106,13 @@ public class NiwsHttpClient extends AbstractHttpClient {
                 bout.toByteArray()
               );
             }
-            catch (Exception e) {
-              return new HttpResponse(uri, 400, e);
+          })
+          .onErrorReturn(new Func1<Throwable,HttpResponse>() {
+            @Override
+            public HttpResponse call(Throwable t) {
+              return new HttpResponse(uri, 400, t);
             }
-          }
-        });
+          });
       }
     }).toBlocking().single();
   }

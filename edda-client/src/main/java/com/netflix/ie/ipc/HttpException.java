@@ -23,7 +23,7 @@ public class HttpException extends Exception {
     this(status, msg, null);
   }
 
-  public HttpException(int status, String msg, Exception e) {
+  public HttpException(int status, String msg, Throwable e) {
     super("status: " + status + ", message: " + msg, e);
     this.status = status;
     this.msg = msg;
