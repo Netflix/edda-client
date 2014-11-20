@@ -194,4 +194,34 @@ public class EddaEc2Client extends EddaAwsClient {
       throw new AmazonClientException("Faled to parse " + url, e);
     }
   }
+
+  public DescribeVpcsResult describeVpcs() {
+    return describeVpcs(new DescribeVpcsRequest());
+  }
+
+  public DescribeVpcsResult describeVpcs(DescribeVpcsRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<Vpc>> ref = new TypeReference<List<Vpc>>() {};
+    String url = config.url() + "/api/v2/aws/vpcs;_expand";
+    try {
+      List<Vpc> vpcs = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getVpcIds();
+      if (shouldFilter(ids)) {
+        List<Vpc> vs = new ArrayList<Vpc>();
+        for (Vpc v : vpcs) {
+          if (matches(ids, v.getVpcId()))
+            vs.add(v);
+        }
+        vpcs = vs;
+      }
+
+      return new DescribeVpcsResult()
+        .withVpcs(vpcs);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
 }
