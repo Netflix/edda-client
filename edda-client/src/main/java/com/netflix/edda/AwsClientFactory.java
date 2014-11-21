@@ -185,8 +185,17 @@ public class AwsClientFactory {
     return newElasticLoadBalancingClient(DEFAULT_PROVIDER.get());
   }
 
-  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(AWSCredentialsProvider provider) {
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
+    AWSCredentialsProvider provider
+  ) {
     AwsConfiguration config = config();
+    return newElasticLoadBalancingClient(config, provider, NetflixEnvironment.region());
+  }
+
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
+    AwsConfiguration config
+  ) {
+    AWSCredentialsProvider provider = DEFAULT_PROVIDER.get();
     return newElasticLoadBalancingClient(config, provider, NetflixEnvironment.region());
   }
 
