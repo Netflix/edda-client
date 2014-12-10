@@ -31,13 +31,13 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import com.google.common.base.Joiner;
 
-import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.Func2;
+import iep.rx.Observable;
+import iep.rx.functions.Func1;
+import iep.rx.functions.Func2;
 
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
-import io.reactivex.netty.protocol.http.client.HttpResponseHeaders;
+import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import iep.io.reactivex.netty.protocol.http.client.HttpResponseHeaders;
 
 import com.netflix.spectator.nflx.RxHttp;
 
