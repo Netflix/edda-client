@@ -104,6 +104,41 @@ public class EddaEc2Client extends EddaAwsClient {
     }
   }
 
+  public DescribeReservedInstancesOfferingsResult describeReservedInstancesOfferings() {
+    return describeReservedInstancesOfferings(new DescribeReservedInstancesOfferingsRequest());
+  }
+
+  public DescribeReservedInstancesOfferingsResult describeReservedInstancesOfferings(DescribeReservedInstancesOfferingsRequest request) {
+    validateEmpty("Filter", request.getFilters());
+    validateEmpty("AvailabilityZone", request.getAvailabilityZone());
+    validateEmpty("IncludeMarketplace", request.getIncludeMarketplace());
+    validateEmpty("InstanceTenancy", request.getInstanceTenancy());
+    validateEmpty("InstanceType", request.getInstanceType());
+    validateEmpty("OfferingType", request.getOfferingType());
+    validateEmpty("ProductDescription", request.getProductDescription());
+
+    TypeReference<List<ReservedInstancesOffering>> ref = new TypeReference<List<ReservedInstancesOffering>>() {};
+    String url = config.url() + "/api/v2/aws/reservedInstancesOfferings;_expand";
+    try {
+      List<ReservedInstancesOffering> reservedInstancesOfferings = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getReservedInstancesOfferingIds();
+      if (shouldFilter(ids)) {
+        List<ReservedInstancesOffering> rs = new ArrayList<ReservedInstancesOffering>();
+        for (ReservedInstancesOffering r : reservedInstancesOfferings) {
+          if (matches(ids, r.getReservedInstancesOfferingId()))
+            rs.add(r);
+        }
+        reservedInstancesOfferings = rs;
+      }
+      return new DescribeReservedInstancesOfferingsResult()
+        .withReservedInstancesOfferings(reservedInstancesOfferings);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
+
   public DescribeSecurityGroupsResult describeSecurityGroups() {
     return describeSecurityGroups(new DescribeSecurityGroupsRequest());
   }

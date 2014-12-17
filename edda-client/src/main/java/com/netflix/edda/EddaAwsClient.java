@@ -72,6 +72,11 @@ abstract public class EddaAwsClient {
       throw new UnsupportedOperationException(name + " required");
   }
 
+  protected void validateEmpty(String name, Boolean b) {
+    if (b != null)
+      throw new UnsupportedOperationException(name + " not supported");
+  }
+
   protected <T> void validateEmpty(String name, List<T> list) {
     if (list != null && list.size() > 0)
       throw new UnsupportedOperationException(name + " not supported");
