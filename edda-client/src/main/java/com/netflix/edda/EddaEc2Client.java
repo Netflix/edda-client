@@ -38,6 +38,36 @@ public class EddaEc2Client extends EddaAwsClient {
     return wrapAwsClient(AmazonEC2.class, delegate);
   }
 
+  public DescribeClassicLinkInstancesResult describeClassicLinkInstances() {
+    return describeClassicLinkInstances(new DescribeClassicLinkInstancesRequest());
+  }
+
+  public DescribeClassicLinkInstancesResult describeClassicLinkInstances(DescribeClassicLinkInstancesRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<ClassicLinkInstance>> ref = new TypeReference<List<ClassicLinkInstance>>() {};
+    String url = config.url() + "/api/v2/aws/classicLinkInstances;_expand";
+    try {
+      List<ClassicLinkInstance> instances = parse(ref, doGet(url).body());
+
+      List<String> ids = request.getInstanceIds();
+      if (shouldFilter(ids)) {
+        List<ClassicLinkInstance> is = new ArrayList<ClassicLinkInstance>();
+        for (ClassicLinkInstance i : instances) {
+          if (matches(ids, i.getInstanceId()))
+            is.add(i);
+        }
+        instances = is;
+      }
+
+      return new DescribeClassicLinkInstancesResult()
+        .withInstances(instances);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
+
   public DescribeImagesResult describeImages() {
     return describeImages(new DescribeImagesRequest());
   }
