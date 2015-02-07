@@ -20,14 +20,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import io.netty.buffer.ByteBuf;
+import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import iep.rx.Observable;
+import iep.rx.functions.Func1;
+import iep.rx.functions.Func2;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonServiceException;
 
 import com.netflix.ie.http.RxHttp;
-
-//import com.netflix.ie.ipc.Http;
-//import com.netflix.ie.ipc.HttpResponse;
 import com.netflix.ie.util.ProxyHelper;
 import com.netflix.ie.platform.PropertyFileLoader;
 
@@ -49,23 +52,37 @@ abstract public class EddaAwsClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  protected byte[] doGet(String uri) {
+  protected byte[] doGet(final String uri) {
     return RxHttp.get(uri)
-    .flatMap(response -> {
-      if (response.getStatus().code() != 200) {
-        AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
-        e.setStatusCode(response.getStatus().code());
-        e.setErrorCode("Edda");
-        e.setRequestId(uri);
-        return iep.rx.Observable.error(e);
+    .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
+      @Override
+      public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
+        if (response.getStatus().code() != 200) {
+          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+          e.setStatusCode(response.getStatus().code());
+          e.setErrorCode("Edda");
+          e.setRequestId(uri);
+          return iep.rx.Observable.error(e);
+        }
+        return response.getContent()
+        .reduce(
+          new ByteArrayOutputStream(),
+          new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
+            @Override
+            public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
+              try { bb.readBytes(out, bb.readableBytes()); }
+              catch (IOException e) { throw new RuntimeException(e); }
+              return out;
+            }
+          }
+        )
+        .map(new Func1<ByteArrayOutputStream,byte[]>() {
+          @Override
+          public byte[] call(ByteArrayOutputStream out) {
+            return out.toByteArray();
+          }
+        });
       }
-      return response.getContent()
-      .reduce(new ByteArrayOutputStream(), (out, bb) -> {
-        try { bb.readBytes(out, bb.readableBytes()); }
-        catch (IOException e) { throw new RuntimeException(e); }
-        return out;
-      })
-      .map(out -> out.toByteArray());
     })
     .toBlocking().single();
   }
