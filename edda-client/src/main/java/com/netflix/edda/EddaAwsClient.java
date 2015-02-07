@@ -25,6 +25,7 @@ import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import iep.rx.Observable;
 import iep.rx.functions.Func1;
 import iep.rx.functions.Func2;
+import iep.rx.schedulers.Schedulers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -84,7 +85,9 @@ abstract public class EddaAwsClient {
         });
       }
     })
-    .toBlocking().single();
+    .subscribeOn(Schedulers.io())
+    .toBlocking()
+    .single();
   }
 
   protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
