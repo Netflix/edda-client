@@ -49,7 +49,7 @@ public class EddaCloudWatchClient extends EddaAwsClient {
     TypeReference<List<MetricAlarm>> ref = new TypeReference<List<MetricAlarm>>() {};
     String url = config.url() + "/api/v2/aws/alarms;_expand";
     try {
-      List<MetricAlarm> metricAlarms = parse(ref, doGet(url).body());
+      List<MetricAlarm> metricAlarms = parse(ref, doGet(url));
 
       List<String> names = request.getAlarmNames();
       String state = request.getStateValue();

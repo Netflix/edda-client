@@ -45,7 +45,7 @@ public class EddaRoute53Client extends EddaAwsClient {
     TypeReference<List<HostedZone>> ref = new TypeReference<List<HostedZone>>() {};
     String url = config.url() + "/api/v2/aws/hostedZones;_expand";
     try {
-      List<HostedZone> hostedZones = parse(ref, doGet(url).body());
+      List<HostedZone> hostedZones = parse(ref, doGet(url));
       return new ListHostedZonesResult()
         .withHostedZones(hostedZones);
     }
@@ -62,7 +62,7 @@ public class EddaRoute53Client extends EddaAwsClient {
 
     String url = config.url() + "/api/v2/aws/hostedRecords;_expand;zone.id=" + hostedZoneId;
     try {
-      List<ResourceRecordSet> resourceRecordSets = parse(ref, doGet(url).body());
+      List<ResourceRecordSet> resourceRecordSets = parse(ref, doGet(url));
       return new ListResourceRecordSetsResult()
         .withResourceRecordSets(resourceRecordSets);
     }

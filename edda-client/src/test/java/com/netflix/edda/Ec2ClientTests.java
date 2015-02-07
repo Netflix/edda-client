@@ -22,6 +22,11 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.netty.buffer.ByteBuf;
+import iep.io.reactivex.netty.RxNetty;
+import iep.io.reactivex.netty.protocol.http.server.HttpServer;
+import iep.io.reactivex.netty.protocol.http.server.file.ClassPathFileRequestHandler;
+
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
@@ -31,13 +36,16 @@ import com.netflix.ie.config.MapConfiguration;
 import com.netflix.ie.config.ResourceConfiguration;
 
 public class Ec2ClientTests {
+  private static HttpServer<ByteBuf, ByteBuf> server;
 
   @BeforeClass
   public static void setUp() throws Exception {
+    server = RxNetty.createHttpServer(0, new ClassPathFileRequestHandler(".")).start();
+
     final String userDir = System.getProperty("user.dir");
     Map<String,String> subs = new HashMap<String,String>() {{
       put("user.dir", userDir);
-      put("resources.url", "file://" + userDir + "/src/test/resources");
+      put("resources.url", "http://localhost:" + server.getServerPort());
     }};
     ResourceConfiguration.load("edda.test.properties", subs);
   }

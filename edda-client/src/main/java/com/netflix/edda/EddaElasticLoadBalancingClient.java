@@ -49,7 +49,7 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
     
     String url = config.url() + "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand";
     try {
-      InstanceStateView instanceStateView = parse(ref, doGet(url).body());
+      InstanceStateView instanceStateView = parse(ref, doGet(url));
       List<InstanceState> instanceStates = instanceStateView.getInstances();
 
       List<Instance> instances = request.getInstances();
@@ -83,7 +83,7 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
     TypeReference<List<LoadBalancerDescription>> ref = new TypeReference<List<LoadBalancerDescription>>() {};
     String url = config.url() + "/api/v2/aws/loadBalancers;_expand";
     try {
-      List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, doGet(url).body());
+      List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, doGet(url));
 
       List<String> names = request.getLoadBalancerNames();
       if (shouldFilter(names)) {
@@ -111,7 +111,7 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
 
     String url = config.url() + "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand";
     try {
-      LoadBalancerAttributesView loadBalancerAttributesView = parse(ref, doGet(url).body());
+      LoadBalancerAttributesView loadBalancerAttributesView = parse(ref, doGet(url));
       return new DescribeLoadBalancerAttributesResult()
         .withLoadBalancerAttributes(loadBalancerAttributesView.getAttributes());
     }

@@ -46,7 +46,7 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     TypeReference<List<AutoScalingGroup>> ref = new TypeReference<List<AutoScalingGroup>>() {};
     String url = config.url() + "/api/v2/aws/autoScalingGroups;_expand";
     try {
-      List<AutoScalingGroup> autoScalingGroups = parse(ref, doGet(url).body());
+      List<AutoScalingGroup> autoScalingGroups = parse(ref, doGet(url));
 
       List<String> names = request.getAutoScalingGroupNames();
       if (shouldFilter(names)) {
@@ -74,7 +74,7 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     TypeReference<List<LaunchConfiguration>> ref = new TypeReference<List<LaunchConfiguration>>() {};
     String url = config.url() + "/api/v2/aws/launchConfigurations;_expand";
     try {
-      List<LaunchConfiguration> launchConfigurations = parse(ref, doGet(url).body());
+      List<LaunchConfiguration> launchConfigurations = parse(ref, doGet(url));
 
       List<String> names = request.getLaunchConfigurationNames();
       if (shouldFilter(names)) {
@@ -102,7 +102,7 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     TypeReference<List<ScalingPolicy>> ref = new TypeReference<List<ScalingPolicy>>() {};
     String url = config.url() + "/api/v2/aws/scalingPolicies;_expand";
     try {
-      List<ScalingPolicy> scalingPolicies = parse(ref, doGet(url).body());
+      List<ScalingPolicy> scalingPolicies = parse(ref, doGet(url));
 
       String asg = request.getAutoScalingGroupName();
       List<String> names = request.getPolicyNames();

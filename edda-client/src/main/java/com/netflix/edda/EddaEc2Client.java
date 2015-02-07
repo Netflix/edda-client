@@ -48,7 +48,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<ClassicLinkInstance>> ref = new TypeReference<List<ClassicLinkInstance>>() {};
     String url = config.url() + "/api/v2/aws/classicLinkInstances;_expand";
     try {
-      List<ClassicLinkInstance> instances = parse(ref, doGet(url).body());
+      List<ClassicLinkInstance> instances = parse(ref, doGet(url));
 
       List<String> ids = request.getInstanceIds();
       if (shouldFilter(ids)) {
@@ -79,7 +79,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<Image>> ref = new TypeReference<List<Image>>() {};
     String url = config.url() + "/api/v2/aws/images;_expand";
     try {
-      List<Image> images = parse(ref, doGet(url).body());
+      List<Image> images = parse(ref, doGet(url));
 
       List<String> owners = request.getOwners();
       List<String> ids = request.getImageIds();
@@ -110,7 +110,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<Reservation>> ref = new TypeReference<List<Reservation>>() {};
     String url = config.url() + "/api/v2/aws/instances;_expand";
     try {
-      List<Reservation> reservations = parse(ref, doGet(url).body());
+      List<Reservation> reservations = parse(ref, doGet(url));
 
       List<String> ids = request.getInstanceIds();
       if (shouldFilter(ids)) {
@@ -150,7 +150,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<ReservedInstancesOffering>> ref = new TypeReference<List<ReservedInstancesOffering>>() {};
     String url = config.url() + "/api/v2/aws/reservedInstancesOfferings;_expand";
     try {
-      List<ReservedInstancesOffering> reservedInstancesOfferings = parse(ref, doGet(url).body());
+      List<ReservedInstancesOffering> reservedInstancesOfferings = parse(ref, doGet(url));
 
       List<String> ids = request.getReservedInstancesOfferingIds();
       if (shouldFilter(ids)) {
@@ -179,7 +179,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<SecurityGroup>> ref = new TypeReference<List<SecurityGroup>>() {};
     String url = config.url() + "/api/v2/aws/securityGroups;_expand";
     try {
-      List<SecurityGroup> securityGroups = parse(ref, doGet(url).body());
+      List<SecurityGroup> securityGroups = parse(ref, doGet(url));
 
       List<String> names = request.getGroupNames();
       List<String> ids = request.getGroupIds();
@@ -210,7 +210,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<Subnet>> ref = new TypeReference<List<Subnet>>() {};
     String url = config.url() + "/api/v2/aws/subnets;_expand";
     try {
-      List<Subnet> subnets = parse(ref, doGet(url).body());
+      List<Subnet> subnets = parse(ref, doGet(url));
 
       List<String> ids = request.getSubnetIds();
       if (shouldFilter(ids)) {
@@ -240,7 +240,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<Volume>> ref = new TypeReference<List<Volume>>() {};
     String url = config.url() + "/api/v2/aws/volumes;_expand";
     try {
-      List<Volume> volumes = parse(ref, doGet(url).body());
+      List<Volume> volumes = parse(ref, doGet(url));
 
       List<String> ids = request.getVolumeIds();
       if (shouldFilter(ids)) {
@@ -270,7 +270,7 @@ public class EddaEc2Client extends EddaAwsClient {
     TypeReference<List<Vpc>> ref = new TypeReference<List<Vpc>>() {};
     String url = config.url() + "/api/v2/aws/vpcs;_expand";
     try {
-      List<Vpc> vpcs = parse(ref, doGet(url).body());
+      List<Vpc> vpcs = parse(ref, doGet(url));
 
       List<String> ids = request.getVpcIds();
       if (shouldFilter(ids)) {
