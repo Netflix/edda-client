@@ -58,8 +58,14 @@ subprojects {
 
   dependencies {
     compile 'org.slf4j:slf4j-api:1.7.7'
+    compile 'com.netflix.archaius:archaius-core:0.6.5'
     compile 'com.netflix.awsobjectmapper:awsobjectmapper:1.9.16.2'
-    compile 'com.netflix.spectator:spectator-nflx:0.16'
+    compile 'com.netflix.eureka:eureka-client:1.1.147'
+    compile 'com.netflix.iep-shadow:iep-rxnetty:0.4.6'
+    compile 'com.netflix.iep-shadow:iep-rxnetty-contexts:0.4.6'
+    compile 'com.netflix.iep-shadow:iep-rxjava:1.0.6'
+    compile 'com.netflix.spectator:spectator-api:0.20.0'
+    compile 'com.netflix.spectator:spectator-ext-sandbox:0.20.0'
     compile 'commons-io:commons-io:2.4'
     testCompile 'junit:junit:4.10'
     testCompile 'nl.jqno.equalsverifier:equalsverifier:1.4.1'
