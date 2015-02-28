@@ -20,7 +20,7 @@ import com.netflix.ie.config.DefaultValue;
 
 import org.joda.time.Duration;
 
-interface AwsConfiguration extends IConfiguration {
+public interface AwsConfiguration extends IConfiguration {
   /** Should we mock dependencies? */
   @DefaultValue("false")
   public boolean useMock();
