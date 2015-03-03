@@ -16,12 +16,9 @@
 package com.netflix.edda;
 
 import java.util.concurrent.atomic.AtomicReference;
-import com.amazonaws.ResponseMetadata;
-import com.amazonaws.AmazonWebServiceRequest;
-import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 
-import com.amazonaws.auth.AWSCredentials;
+//import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 //import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
@@ -31,6 +28,7 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 //import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 //import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
 
+import com.amazonaws.handlers.RequestHandler2;
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
@@ -125,17 +123,30 @@ public class AwsClientFactory {
     String vip,
     String region
   ) {
+    return newAutoScalingClient(config, provider, vip, region, null);
+  }
+
+  public static AmazonAutoScaling newAutoScalingClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region,
+    RequestHandler2 responseCallback
+  ) {
     if (config.useMock())
       throw new UnsupportedOperationException("AutoScaling mock not yet supported");
 
-    EddaAutoScalingClient edda = new EddaAutoScalingClient(config, vip, region);
+    EddaAutoScalingClient edda = new EddaAutoScalingClient(config, vip, region, responseCallback);
 
     if (!config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
+    AmazonAutoScalingClient client = new AmazonAutoScalingClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
+    if (responseCallback != null) {
+      client.addRequestHandler(responseCallback);
+    }
     if (config.useEdda())
-      client = edda.wrapAwsClient(client);
+      return edda.wrapAwsClient(client);
     return client;
   }
 
@@ -154,17 +165,30 @@ public class AwsClientFactory {
     String vip,
     String region
   ) {
+    return newCloudWatchClient(config, provider, vip, region, null);
+  }
+
+  public static AmazonCloudWatch newCloudWatchClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region,
+    RequestHandler2 responseCallback
+  ) {
     if (config.useMock())
       throw new UnsupportedOperationException("CloudWatch mock not yet supported");
 
-    EddaCloudWatchClient edda = new EddaCloudWatchClient(config, vip, region);
+    EddaCloudWatchClient edda = new EddaCloudWatchClient(config, vip, region, responseCallback);
 
     if (!config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonCloudWatch client = new AmazonCloudWatchClient(provider, clientConfig(config));
+    AmazonCloudWatchClient client = new AmazonCloudWatchClient(provider, clientConfig(config));
     client.setEndpoint("monitoring." + region + ".amazonaws.com");
+    if (responseCallback != null) {
+      client.addRequestHandler(responseCallback);
+    }
     if (config.useEdda())
-      client = edda.wrapAwsClient(client);
+      return edda.wrapAwsClient(client);
     return client;
   }
 
@@ -183,16 +207,29 @@ public class AwsClientFactory {
     String vip,
     String region
   ) {
+    return newEc2Client(config, provider, vip, region, null);
+  }
+
+  public static AmazonEC2 newEc2Client(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region,
+    RequestHandler2 responseCallback
+  ) {
     if (config.useMock())
       throw new UnsupportedOperationException("EC2 mock not yet supported");
 
-    EddaEc2Client edda = new EddaEc2Client(config, vip, region);
+    EddaEc2Client edda = new EddaEc2Client(config, vip, region, responseCallback);
     if (!config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
+    AmazonEC2Client client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
+    if (responseCallback != null) {
+      client.addRequestHandler(responseCallback);
+    }
     if (config.useEdda())
-      client = edda.wrapAwsClient(client);
+      return edda.wrapAwsClient(client);
     return client;
   }
 
@@ -222,17 +259,30 @@ public class AwsClientFactory {
     String vip,
     String region
   ) {
+    return newElasticLoadBalancingClient(config, provider, vip, region, null);
+  }
+
+  public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region,
+    RequestHandler2 responseCallback
+  ) {
     if (config.useMock())
       throw new UnsupportedOperationException("ElasticLoadBalancing mock not yet supported");
 
-    EddaElasticLoadBalancingClient edda = new EddaElasticLoadBalancingClient(config, vip, region);
+    EddaElasticLoadBalancingClient edda = new EddaElasticLoadBalancingClient(config, vip, region, responseCallback);
 
     if (!config.wrapAwsClient()) edda.readOnly();
 
-    AmazonElasticLoadBalancing client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
+    AmazonElasticLoadBalancingClient client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
     client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
+    if (responseCallback != null) {
+      client.addRequestHandler(responseCallback);
+    }
     if (config.useEdda())
-      client = edda.wrapAwsClient(client);
+      return edda.wrapAwsClient(client);
     return client;
   }
 
@@ -251,16 +301,29 @@ public class AwsClientFactory {
     String vip,
     String region
   ) {
+    return newRoute53Client(config, provider, vip, region, null);
+  }
+
+  public static AmazonRoute53 newRoute53Client(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region,
+    RequestHandler2 responseCallback
+  ) {
     if (config.useMock())
       throw new UnsupportedOperationException("Route53 mock not yet supported");
 
-    EddaRoute53Client edda = new EddaRoute53Client(config, vip, region);
+    EddaRoute53Client edda = new EddaRoute53Client(config, vip, region, responseCallback);
 
     if (!config.wrapAwsClient()) edda.readOnly();
 
-    AmazonRoute53 client = new AmazonRoute53Client(provider, clientConfig(config));
+    AmazonRoute53Client client = new AmazonRoute53Client(provider, clientConfig(config));
+    if (responseCallback != null) {
+      client.addRequestHandler(responseCallback);
+    }
     if (config.useEdda())
-      client = edda.wrapAwsClient(client);
+      return edda.wrapAwsClient(client);
     return client;
   }
 }

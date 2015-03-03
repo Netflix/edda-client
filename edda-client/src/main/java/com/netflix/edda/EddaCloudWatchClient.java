@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.amazonaws.Request;
+import com.amazonaws.handlers.RequestHandler2;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
@@ -27,7 +29,11 @@ import com.amazonaws.services.cloudwatch.model.*;
 
 public class EddaCloudWatchClient extends EddaAwsClient {
   public EddaCloudWatchClient(AwsConfiguration config, String vip, String region) {
-    super(config, vip, region);
+    super(config, vip, region, null);
+  }
+
+  public EddaCloudWatchClient(AwsConfiguration config, String vip, String region, RequestHandler2 responseCallback) {
+    super(config, vip, region, responseCallback);
   }
 
   public AmazonCloudWatch readOnly() {
@@ -47,9 +53,10 @@ public class EddaCloudWatchClient extends EddaAwsClient {
     validateEmpty("AlarmNamePrefix", request.getAlarmNamePrefix());
 
     TypeReference<List<MetricAlarm>> ref = new TypeReference<List<MetricAlarm>>() {};
-    String url = config.url() + "/api/v2/aws/alarms;_expand";
+    EddaRequest<DescribeAlarmsRequest> req = buildRequest(request,  "/api/v2/aws/alarms;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<MetricAlarm> metricAlarms = parse(ref, doGet(url));
+      List<MetricAlarm> metricAlarms = parse(ref, response);
 
       List<String> names = request.getAlarmNames();
       String state = request.getStateValue();
@@ -62,11 +69,11 @@ public class EddaCloudWatchClient extends EddaAwsClient {
         metricAlarms = mas;
       }
 
-      return new DescribeAlarmsResult()
-        .withMetricAlarms(metricAlarms);
+      return handleResponse(response, req, new DescribeAlarmsResult().withMetricAlarms(metricAlarms));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 }

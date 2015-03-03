@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.amazonaws.handlers.RequestHandler2;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
@@ -30,7 +31,11 @@ import com.netflix.edda.mapper.LoadBalancerAttributesView;
 
 public class EddaElasticLoadBalancingClient extends EddaAwsClient {
   public EddaElasticLoadBalancingClient(AwsConfiguration config, String vip, String region) {
-    super(config, vip, region);
+    super(config, vip, region, null);
+  }
+
+  public EddaElasticLoadBalancingClient(AwsConfiguration config, String vip, String region, RequestHandler2 responseCallback) {
+    super(config, vip, region, responseCallback);
   }
 
   public AmazonElasticLoadBalancing readOnly() {
@@ -46,10 +51,11 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
 
     TypeReference<InstanceStateView> ref = new TypeReference<InstanceStateView>() {};
     String loadBalancerName = request.getLoadBalancerName();
-    
-    String url = config.url() + "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand";
+    EddaRequest<DescribeInstanceHealthRequest> req = buildRequest(request, "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand");
+    EddaResponse response = doGet(req);
+
     try {
-      InstanceStateView instanceStateView = parse(ref, doGet(url));
+      InstanceStateView instanceStateView = parse(ref, response);
       List<InstanceState> instanceStates = instanceStateView.getInstances();
 
       List<Instance> instances = request.getInstances();
@@ -67,11 +73,12 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
         instanceStates = iss;
       }
 
-      return new DescribeInstanceHealthResult()
-        .withInstanceStates(instanceStateView.getInstances());
+      return handleResponse(response, req, new DescribeInstanceHealthResult()
+        .withInstanceStates(instanceStates));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 
@@ -81,9 +88,10 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
 
   public DescribeLoadBalancersResult describeLoadBalancers(DescribeLoadBalancersRequest request) {
     TypeReference<List<LoadBalancerDescription>> ref = new TypeReference<List<LoadBalancerDescription>>() {};
-    String url = config.url() + "/api/v2/aws/loadBalancers;_expand";
+    EddaRequest<DescribeLoadBalancersRequest> req = buildRequest(request, "/api/v2/aws/loadBalancers;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, doGet(url));
+      List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, response);
 
       List<String> names = request.getLoadBalancerNames();
       if (shouldFilter(names)) {
@@ -95,11 +103,12 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
         loadBalancerDescriptions = lbs;
       }
 
-      return new DescribeLoadBalancersResult()
-        .withLoadBalancerDescriptions(loadBalancerDescriptions);
+      return handleResponse(response, req, new DescribeLoadBalancersResult()
+        .withLoadBalancerDescriptions(loadBalancerDescriptions));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 
@@ -108,15 +117,16 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
 
     TypeReference<LoadBalancerAttributesView> ref = new TypeReference<LoadBalancerAttributesView>() {};
     String loadBalancerName = request.getLoadBalancerName();
-
-    String url = config.url() + "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand";
+    EddaRequest<DescribeLoadBalancerAttributesRequest> req = buildRequest(request, "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand");
+    EddaResponse response = doGet(req);
     try {
-      LoadBalancerAttributesView loadBalancerAttributesView = parse(ref, doGet(url));
-      return new DescribeLoadBalancerAttributesResult()
-        .withLoadBalancerAttributes(loadBalancerAttributesView.getAttributes());
+      LoadBalancerAttributesView loadBalancerAttributesView = parse(ref, response);
+      return handleResponse(response, req, new DescribeLoadBalancerAttributesResult()
+        .withLoadBalancerAttributes(loadBalancerAttributesView.getAttributes()));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 }
