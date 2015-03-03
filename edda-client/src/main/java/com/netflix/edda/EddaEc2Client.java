@@ -30,6 +30,10 @@ public class EddaEc2Client extends EddaAwsClient {
     super(config);
   }
 
+  public EddaEc2Client(AwsConfiguration config, ResponseCallback responseCallback) {
+    super(config, responseCallback);
+  }
+
   public AmazonEC2 readOnly() {
     return readOnly(AmazonEC2.class);
   }
@@ -64,7 +68,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withInstances(instances);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -96,7 +100,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withImages(images);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -130,7 +134,36 @@ public class EddaEc2Client extends EddaAwsClient {
         .withReservations(reservations);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
+    }
+  }
+
+  public DescribeInstanceStatusResult describeInstanceStatus() {
+    return describeInstanceStatus(new DescribeInstanceStatusRequest());
+  }
+
+  public DescribeInstanceStatusResult describeInstanceStatus(DescribeInstanceStatusRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<InstanceStatus>> ref = new TypeReference<List<InstanceStatus>>() {};
+    String url = config.url() + "/api/v2/aws/instanceStatuses;_expand";
+    try {
+      List<InstanceStatus> statuses = parse(ref, doGet(url));
+
+      List<String> ids = request.getInstanceIds();
+      if (shouldFilter(ids)) {
+        List<InstanceStatus> rs = new ArrayList<>();
+        for (InstanceStatus is : statuses) {
+          if (matches(ids, is.getInstanceId())) {
+            rs.add(is);
+          }
+        }
+        statuses = rs;
+      }
+      return new DescribeInstanceStatusResult().withInstanceStatuses(statuses);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -165,7 +198,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withReservedInstancesOfferings(reservedInstancesOfferings);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -196,7 +229,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withSecurityGroups(securityGroups);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -226,7 +259,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withSubnets(subnets);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -256,7 +289,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withVolumes(volumes);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 
@@ -286,7 +319,7 @@ public class EddaEc2Client extends EddaAwsClient {
         .withVpcs(vpcs);
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      throw new AmazonClientException("Failed to parse " + url, e);
     }
   }
 }
