@@ -18,7 +18,10 @@ package com.netflix.edda;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
 import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -37,9 +40,15 @@ import com.netflix.ie.platform.PropertyFileLoader;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
+  final ResponseCallback responseCallback;
 
   public EddaAwsClient(AwsConfiguration config) {
+    this(config, null);
+  }
+
+  public EddaAwsClient(AwsConfiguration config, ResponseCallback responseCallback) {
     this.config = config;
+    this.responseCallback = responseCallback;
     PropertyFileLoader.loadResource("edda.niws.properties");
   }
 
@@ -58,6 +67,14 @@ abstract public class EddaAwsClient {
     .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
       @Override
       public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
+        if (responseCallback != null) {
+          final Map<String, List<String>> headers = new HashMap<>();
+          for (String header : response.getHeaders().names()) {
+            headers.put(header, response.getHeaders().getAll(header));
+          }
+          responseCallback.requestHandled(uri, Collections.unmodifiableMap(headers));
+        }
+
         if (response.getStatus().code() != 200) {
           AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
           e.setStatusCode(response.getStatus().code());

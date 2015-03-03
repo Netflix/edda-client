@@ -30,6 +30,10 @@ public class EddaCloudWatchClient extends EddaAwsClient {
     super(config);
   }
 
+  public EddaCloudWatchClient(AwsConfiguration config, ResponseCallback responseCallback) {
+    super(config, responseCallback);
+  }
+
   public AmazonCloudWatch readOnly() {
     return readOnly(AmazonCloudWatch.class);
   }

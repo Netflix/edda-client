@@ -29,6 +29,10 @@ public class EddaRoute53Client extends EddaAwsClient {
     super(config);
   }
 
+  public EddaRoute53Client(AwsConfiguration config, ResponseCallback responseCallback) {
+    super(config, responseCallback);
+  }
+
   public AmazonRoute53 readOnly() {
     return readOnly(AmazonRoute53.class);
   }

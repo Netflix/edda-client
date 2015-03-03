@@ -33,6 +33,10 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
     super(config);
   }
 
+  public EddaElasticLoadBalancingClient(AwsConfiguration config, ResponseCallback responseCallback) {
+    super(config, responseCallback);
+  }
+
   public AmazonElasticLoadBalancing readOnly() {
     return readOnly(AmazonElasticLoadBalancing.class);
   }
@@ -46,7 +50,7 @@ public class EddaElasticLoadBalancingClient extends EddaAwsClient {
 
     TypeReference<InstanceStateView> ref = new TypeReference<InstanceStateView>() {};
     String loadBalancerName = request.getLoadBalancerName();
-    
+
     String url = config.url() + "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand";
     try {
       InstanceStateView instanceStateView = parse(ref, doGet(url));

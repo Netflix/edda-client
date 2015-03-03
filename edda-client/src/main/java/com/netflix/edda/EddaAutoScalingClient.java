@@ -30,6 +30,10 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     super(config);
   }
 
+  public EddaAutoScalingClient(AwsConfiguration config, ResponseCallback responseCallback) {
+    super(config, responseCallback);
+  }
+
   public AmazonAutoScaling readOnly() {
     return readOnly(AmazonAutoScaling.class);
   }
