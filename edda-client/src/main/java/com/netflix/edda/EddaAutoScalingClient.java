@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.amazonaws.handlers.RequestHandler2;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
@@ -30,7 +31,7 @@ public class EddaAutoScalingClient extends EddaAwsClient {
     super(config);
   }
 
-  public EddaAutoScalingClient(AwsConfiguration config, ResponseCallback responseCallback) {
+  public EddaAutoScalingClient(AwsConfiguration config, RequestHandler2 responseCallback) {
     super(config, responseCallback);
   }
 
@@ -48,9 +49,10 @@ public class EddaAutoScalingClient extends EddaAwsClient {
 
   public DescribeAutoScalingGroupsResult describeAutoScalingGroups(DescribeAutoScalingGroupsRequest request) {
     TypeReference<List<AutoScalingGroup>> ref = new TypeReference<List<AutoScalingGroup>>() {};
-    String url = config.url() + "/api/v2/aws/autoScalingGroups;_expand";
+    EddaRequest<DescribeAutoScalingGroupsRequest> req = buildRequest(request, "/api/v2/aws/autoScalingGroups;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<AutoScalingGroup> autoScalingGroups = parse(ref, doGet(url));
+      List<AutoScalingGroup> autoScalingGroups = parse(ref, response);
 
       List<String> names = request.getAutoScalingGroupNames();
       if (shouldFilter(names)) {
@@ -62,11 +64,12 @@ public class EddaAutoScalingClient extends EddaAwsClient {
         autoScalingGroups = asgs;
       }
 
-      return new DescribeAutoScalingGroupsResult()
-        .withAutoScalingGroups(autoScalingGroups);
+      return handleResponse(response, req, new DescribeAutoScalingGroupsResult()
+        .withAutoScalingGroups(autoScalingGroups));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 
@@ -76,9 +79,10 @@ public class EddaAutoScalingClient extends EddaAwsClient {
 
   public DescribeLaunchConfigurationsResult describeLaunchConfigurations(DescribeLaunchConfigurationsRequest request) {
     TypeReference<List<LaunchConfiguration>> ref = new TypeReference<List<LaunchConfiguration>>() {};
-    String url = config.url() + "/api/v2/aws/launchConfigurations;_expand";
+    EddaRequest<DescribeLaunchConfigurationsRequest> req = buildRequest(request, "/api/v2/aws/launchConfigurations;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<LaunchConfiguration> launchConfigurations = parse(ref, doGet(url));
+      List<LaunchConfiguration> launchConfigurations = parse(ref, response);
 
       List<String> names = request.getLaunchConfigurationNames();
       if (shouldFilter(names)) {
@@ -90,11 +94,12 @@ public class EddaAutoScalingClient extends EddaAwsClient {
         launchConfigurations = lcs;
       }
 
-      return new DescribeLaunchConfigurationsResult()
-        .withLaunchConfigurations(launchConfigurations);
+      return handleResponse(response, req, new DescribeLaunchConfigurationsResult()
+        .withLaunchConfigurations(launchConfigurations));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 
@@ -104,9 +109,10 @@ public class EddaAutoScalingClient extends EddaAwsClient {
 
   public DescribePoliciesResult describePolicies(DescribePoliciesRequest request) {
     TypeReference<List<ScalingPolicy>> ref = new TypeReference<List<ScalingPolicy>>() {};
-    String url = config.url() + "/api/v2/aws/scalingPolicies;_expand";
+    EddaRequest<DescribePoliciesRequest> req = buildRequest(request, "/api/v2/aws/scalingPolicies;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<ScalingPolicy> scalingPolicies = parse(ref, doGet(url));
+      List<ScalingPolicy> scalingPolicies = parse(ref, response);
 
       String asg = request.getAutoScalingGroupName();
       List<String> names = request.getPolicyNames();
@@ -119,11 +125,12 @@ public class EddaAutoScalingClient extends EddaAwsClient {
         scalingPolicies = sps;
       }
 
-      return new DescribePoliciesResult()
-        .withScalingPolicies(scalingPolicies);
+      return handleResponse(response, req, new DescribePoliciesResult()
+        .withScalingPolicies(scalingPolicies));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 }

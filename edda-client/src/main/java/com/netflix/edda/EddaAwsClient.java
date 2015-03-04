@@ -18,11 +18,16 @@ package com.netflix.edda;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.*;
+import com.amazonaws.handlers.RequestHandler2;
+import com.amazonaws.http.HttpResponse;
 import io.netty.buffer.ByteBuf;
 import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import iep.rx.Observable;
@@ -32,23 +37,22 @@ import iep.rx.schedulers.Schedulers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.amazonaws.AmazonServiceException;
-
 import com.netflix.ie.http.RxHttp;
 import com.netflix.ie.util.ProxyHelper;
 import com.netflix.ie.platform.PropertyFileLoader;
+import org.apache.http.client.methods.HttpGet;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
-  final ResponseCallback responseCallback;
+  final RequestHandler2 requestHandler;
 
   public EddaAwsClient(AwsConfiguration config) {
     this(config, null);
   }
 
-  public EddaAwsClient(AwsConfiguration config, ResponseCallback responseCallback) {
+  public EddaAwsClient(AwsConfiguration config, RequestHandler2 requestHandler) {
     this.config = config;
-    this.responseCallback = responseCallback;
+    this.requestHandler = requestHandler;
     PropertyFileLoader.loadResource("edda.niws.properties");
   }
 
@@ -62,53 +66,64 @@ abstract public class EddaAwsClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  protected byte[] doGet(final String uri) {
-    return RxHttp.get(uri)
-    .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
+  protected EddaResponse doGet(final EddaRequest<?> request) {
+    EddaResponse response = RxHttp.get(request.getUrl())
+    .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<EddaResponse>>() {
       @Override
-      public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-        if (responseCallback != null) {
-          final Map<String, List<String>> headers = new HashMap<>();
-          for (String header : response.getHeaders().names()) {
-            headers.put(header, response.getHeaders().getAll(header));
-          }
-          responseCallback.requestHandled(uri, Collections.unmodifiableMap(headers));
+      public Observable<EddaResponse> call(HttpClientResponse<ByteBuf> response) {
+        Map<String, String> headers = new HashMap<>();
+        for (String header : response.getHeaders().names()) {
+          headers.put(header, response.getHeaders().get(header));
         }
 
+        EddaResponse eddaResponse = new EddaResponse(response.getStatus().code(), response.getStatus().reasonPhrase(), headers);
         if (response.getStatus().code() != 200) {
-          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + request.getUrl());
           e.setStatusCode(response.getStatus().code());
-          e.setErrorCode("Edda");
-          e.setRequestId(uri);
-          return iep.rx.Observable.error(e);
+          e.setErrorCode(request.getServiceName());
+          e.setRequestId(request.getUrl());
+          eddaResponse.setException(e);
+          return iep.rx.Observable.just(eddaResponse);
         }
+
         return response.getContent()
         .reduce(
-          new ByteArrayOutputStream(),
-          new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
+          eddaResponse,
+          new Func2<EddaResponse, ByteBuf, EddaResponse>() {
             @Override
-            public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
-              try { bb.readBytes(out, bb.readableBytes()); }
-              catch (IOException e) { throw new RuntimeException(e); }
-              return out;
+            public EddaResponse call(EddaResponse eddaResponse, ByteBuf bb) {
+              try {
+                bb.readBytes(eddaResponse.getOutputStream(), bb.readableBytes());
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+              return eddaResponse;
             }
           }
-        )
-        .map(new Func1<ByteArrayOutputStream,byte[]>() {
-          @Override
-          public byte[] call(ByteArrayOutputStream out) {
-            return out.toByteArray();
-          }
-        });
+        );
       }
     })
     .subscribeOn(Schedulers.io())
     .toBlocking()
     .single();
+
+    if (response.hasException()) {
+      throw notifyException(request, response);
+    }
+
+    return response;
+  }
+
+  protected <T> T parse(TypeReference<T> ref, EddaResponse response) throws IOException {
+    return parse(ref, response.newContentStream());
   }
 
   protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
-      return JsonHelper.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
+    return parse(ref, new ByteArrayInputStream(body));
+  }
+
+  protected <T> T parse(TypeReference<T> ref, InputStream content) throws IOException {
+    return JsonHelper.createParser(content).readValueAs(ref);
   }
 
   protected void validateEmpty(String name, String s) {
@@ -146,4 +161,92 @@ abstract public class EddaAwsClient {
   protected boolean matches(List<String> list, String v) {
     return !shouldFilter(list) || list.contains(v);
   }
+
+  static class EddaRequest<T> extends DefaultRequest<T> {
+    public EddaRequest(AmazonWebServiceRequest originalRequest, String baseUrl, String relativeUri) {
+      super(originalRequest, "Edda");
+      setEndpoint(URI.create(baseUrl));
+      setResourcePath(relativeUri);
+    }
+
+    public String getUrl() {
+      return URI.create(getEndpoint().toString() + getResourcePath()).normalize().toString();
+    }
+  }
+
+  static class EddaResponse {
+    private final int statusCode;
+    private final String statusText;
+    private final Map<String, String> headers;
+    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private RuntimeException exception;
+
+    public EddaResponse(int statusCode, String statusText, Map<String, String> headers) {
+      this.statusCode = statusCode;
+      this.statusText = statusText;
+      this.headers = headers;
+    }
+
+    public void setException(RuntimeException exception) {
+      this.exception = exception;
+    }
+
+    public boolean hasException() {
+      return exception != null;
+    }
+
+    public RuntimeException getException() {
+      return exception;
+    }
+
+    public ByteArrayOutputStream getOutputStream() {
+      return outputStream;
+    }
+
+    public InputStream newContentStream() {
+      return new ByteArrayInputStream(outputStream.toByteArray());
+    }
+
+    HttpResponse toHttpResponse(Request<?> request) {
+      URI fullUri = URI.create(request.getEndpoint().toString() + request.getResourcePath()).normalize();
+      HttpResponse response = new HttpResponse(request, new HttpGet(fullUri));
+      response.setContent(newContentStream());
+      response.setStatusCode(statusCode);
+      response.setStatusText(statusText);
+      for (Map.Entry<String, String> header : headers.entrySet()) {
+        response.addHeader(header.getKey(), header.getValue());
+      }
+      return response;
+    }
+
+    <T> Response<T> toResponse(Request<?> request, T awsResponse) {
+      return new Response<>(awsResponse, toHttpResponse(request));
+    }
+  }
+
+  protected RuntimeException notifyException(Request<?> request, EddaResponse eddaResponse) {
+    if (requestHandler != null) {
+      requestHandler.afterError(request, eddaResponse.toResponse(request, null), eddaResponse.getException());
+    }
+
+    return eddaResponse.getException();
+  }
+
+  protected <T extends AmazonWebServiceRequest> EddaRequest<T> buildRequest(T originalRequest, String relativeUri) {
+    EddaRequest<T> req = new EddaRequest<>(originalRequest, config.url(), relativeUri);
+    if (requestHandler != null) {
+      requestHandler.beforeRequest(req);
+    }
+    return req;
+  }
+
+  protected <T> T handleResponse(EddaResponse resp, Request<?> request, T awsResp) {
+    Response<T> response = resp.toResponse(request, awsResp);
+    if (requestHandler != null) {
+      requestHandler.afterResponse(request, response);
+    }
+
+    return response.getAwsResponse();
+  }
+
 }

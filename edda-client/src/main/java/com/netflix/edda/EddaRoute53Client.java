@@ -18,6 +18,7 @@ package com.netflix.edda;
 import java.io.IOException;
 import java.util.List;
 
+import com.amazonaws.handlers.RequestHandler2;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
@@ -29,7 +30,7 @@ public class EddaRoute53Client extends EddaAwsClient {
     super(config);
   }
 
-  public EddaRoute53Client(AwsConfiguration config, ResponseCallback responseCallback) {
+  public EddaRoute53Client(AwsConfiguration config, RequestHandler2 responseCallback) {
     super(config, responseCallback);
   }
 
@@ -47,14 +48,16 @@ public class EddaRoute53Client extends EddaAwsClient {
 
   public ListHostedZonesResult listHostedZones(ListHostedZonesRequest request) {
     TypeReference<List<HostedZone>> ref = new TypeReference<List<HostedZone>>() {};
-    String url = config.url() + "/api/v2/aws/hostedZones;_expand";
+    EddaRequest<ListHostedZonesRequest> req = buildRequest(request, "/api/v2/aws/hostedZones;_expand");
+    EddaResponse response = doGet(req);
     try {
-      List<HostedZone> hostedZones = parse(ref, doGet(url));
-      return new ListHostedZonesResult()
-        .withHostedZones(hostedZones);
+      List<HostedZone> hostedZones = parse(ref, response);
+      return handleResponse(response, req, new ListHostedZonesResult()
+        .withHostedZones(hostedZones));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 
@@ -63,15 +66,16 @@ public class EddaRoute53Client extends EddaAwsClient {
 
     TypeReference<List<ResourceRecordSet>> ref = new TypeReference<List<ResourceRecordSet>>() {};
     String hostedZoneId = request.getHostedZoneId();
-
-    String url = config.url() + "/api/v2/aws/hostedRecords;_expand;zone.id=" + hostedZoneId;
+    EddaRequest<ListResourceRecordSetsRequest> req = buildRequest(request, "/api/v2/aws/hostedRecords;_expand;zone.id=" + hostedZoneId);
+    EddaResponse response = doGet(req);
     try {
-      List<ResourceRecordSet> resourceRecordSets = parse(ref, doGet(url));
-      return new ListResourceRecordSetsResult()
-        .withResourceRecordSets(resourceRecordSets);
+      List<ResourceRecordSet> resourceRecordSets = parse(ref, response);
+      return handleResponse(response, req, new ListResourceRecordSetsResult()
+        .withResourceRecordSets(resourceRecordSets));
     }
     catch (IOException e) {
-      throw new AmazonClientException("Faled to parse " + url, e);
+      response.setException(new AmazonClientException("Failed to parse " + req.getUrl(), e));
+      throw notifyException(req, response);
     }
   }
 }
