@@ -12,7 +12,7 @@ public class EddaModule extends AbstractModule {
     bind(EddaContext.class).asEagerSingleton();
 
     try {
-      ConfigurationManager.loadPropertiesFromResources("edda.niws.properties");
+      ConfigurationManager.loadPropertiesFromResources("edda-client.properties");
     }
     catch (java.io.IOException e) {
       throw new RuntimeException("Failed to load edda properties", e);
