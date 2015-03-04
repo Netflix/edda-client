@@ -29,8 +29,8 @@ import com.netflix.edda.mapper.InstanceStateView;
 import com.netflix.edda.mapper.LoadBalancerAttributesView;
 
 public class EddaElasticLoadBalancingClient extends EddaAwsClient {
-  public EddaElasticLoadBalancingClient(AwsConfiguration config) {
-    super(config);
+  public EddaElasticLoadBalancingClient(AwsConfiguration config, String vip, String region) {
+    super(config, vip, region);
   }
 
   public AmazonElasticLoadBalancing readOnly() {

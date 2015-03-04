@@ -8,10 +8,13 @@
 # Anything in target dirs
 build
 gh-pages-build
+target
 
 # Ivy caches
 .gradle
+.ivy2
 .ivy2.cache
+.sbt
 
 # Intellij
 *.iml
@@ -23,4 +26,4 @@ gh-pages-build
 .idea_modules
 out
 
-repos.gradle
+.DS_Store

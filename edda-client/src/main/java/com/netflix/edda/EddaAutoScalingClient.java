@@ -26,8 +26,8 @@ import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.model.*;
 
 public class EddaAutoScalingClient extends EddaAwsClient {
-  public EddaAutoScalingClient(AwsConfiguration config) {
-    super(config);
+  public EddaAutoScalingClient(AwsConfiguration config, String vip, String region) {
+    super(config, vip, region);
   }
 
   public AmazonAutoScaling readOnly() {

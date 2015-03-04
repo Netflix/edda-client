@@ -25,8 +25,8 @@ import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.model.*;
 
 public class EddaRoute53Client extends EddaAwsClient {
-  public EddaRoute53Client(AwsConfiguration config) {
-    super(config);
+  public EddaRoute53Client(AwsConfiguration config, String vip, String region) {
+    super(config, vip, region);
   }
 
   public AmazonRoute53 readOnly() {

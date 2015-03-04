@@ -31,16 +31,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonServiceException;
 
-import com.netflix.ie.http.RxHttp;
-import com.netflix.ie.util.ProxyHelper;
-import com.netflix.ie.platform.PropertyFileLoader;
+import com.netflix.edda.util.ProxyHelper;
 
 abstract public class EddaAwsClient {
   final AwsConfiguration config;
+  final String vip;
+  final String region;
 
-  public EddaAwsClient(AwsConfiguration config) {
+  public EddaAwsClient(AwsConfiguration config, String vip, String region) {
     this.config = config;
-    PropertyFileLoader.loadResource("edda.niws.properties");
+    this.vip = vip;
+    this.region = region;
   }
 
   public void shutdown() {}
@@ -54,7 +55,7 @@ abstract public class EddaAwsClient {
   }
 
   protected byte[] doGet(final String uri) {
-    return RxHttp.get(uri)
+    return EddaContext.getRxHttp().get(mkUrl(uri))
     .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
       @Override
       public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
@@ -88,6 +89,10 @@ abstract public class EddaAwsClient {
     .subscribeOn(Schedulers.io())
     .toBlocking()
     .single();
+  }
+
+  protected String mkUrl(String url) {
+    return url.replaceAll("\\$\\{vip\\}", vip).replaceAll("\\$\\{region\\}", region);
   }
 
   protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {

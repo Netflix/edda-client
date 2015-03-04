@@ -30,10 +30,8 @@ import iep.io.reactivex.netty.protocol.http.server.file.ClassPathFileRequestHand
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
-import com.netflix.ie.config.Configuration;
-import com.netflix.ie.config.MapConfiguration;
-
-import com.netflix.ie.config.ResourceConfiguration;
+import com.netflix.iep.config.Configuration;
+import com.netflix.iep.config.TestResourceConfiguration;
 
 public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
@@ -47,7 +45,7 @@ public class Ec2ClientTests {
       put("user.dir", userDir);
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
-    ResourceConfiguration.load("edda.test.properties", subs);
+    TestResourceConfiguration.load("edda.test.properties", subs);
   }
 
   @Test

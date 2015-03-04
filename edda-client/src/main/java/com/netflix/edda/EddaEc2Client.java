@@ -26,8 +26,8 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
 public class EddaEc2Client extends EddaAwsClient {
-  public EddaEc2Client(AwsConfiguration config) {
-    super(config);
+  public EddaEc2Client(AwsConfiguration config, String vip, String region) {
+    super(config, vip, region);
   }
 
   public AmazonEC2 readOnly() {

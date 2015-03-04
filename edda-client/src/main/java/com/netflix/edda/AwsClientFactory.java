@@ -42,8 +42,8 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingCli
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 
-import com.netflix.ie.config.Configuration;
-import com.netflix.ie.platform.NetflixEnvironment;
+import com.netflix.iep.config.Configuration;
+import com.netflix.iep.NetflixEnvironment;
 
 public class AwsClientFactory {
   private AwsClientFactory() {}
@@ -55,8 +55,15 @@ public class AwsClientFactory {
   private static final AtomicReference<AWSCredentialsProvider> DEFAULT_PROVIDER =
     new AtomicReference<AWSCredentialsProvider>(new DefaultAWSCredentialsProviderChain());
 
+  private static final AtomicReference<String>  DEFAULT_VIP =
+    new AtomicReference<String>("edda-main:7001");
+
   public static void setDefaultCredentialsProvider(AWSCredentialsProvider p) {
     DEFAULT_PROVIDER.set(p);
+  }
+
+  public static void setDefaultVip(String vip) {
+    DEFAULT_VIP.set(vip);
   }
 
 /**
@@ -104,140 +111,156 @@ public class AwsClientFactory {
   }
 
   public static AmazonAutoScaling newAutoScalingClient() {
-    return newAutoScalingClient(DEFAULT_PROVIDER.get());
+    return newAutoScalingClient(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
   }
 
-  public static AmazonAutoScaling newAutoScalingClient(AWSCredentialsProvider provider) {
+  public static AmazonAutoScaling newAutoScalingClient(AWSCredentialsProvider provider, String vip) {
     AwsConfiguration config = config();
-    return newAutoScalingClient(config, provider, NetflixEnvironment.region());
+    return newAutoScalingClient(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonAutoScaling newAutoScalingClient(
     AwsConfiguration config,
     AWSCredentialsProvider provider,
+    String vip,
     String region
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("AutoScaling mock not yet supported");
-    if (!config.wrapAwsClient())
-      return new EddaAutoScalingClient(config).readOnly();
+
+    EddaAutoScalingClient edda = new EddaAutoScalingClient(config, vip, region);
+
+    if (!config.wrapAwsClient()) return edda.readOnly();
 
     AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = new EddaAutoScalingClient(config).wrapAwsClient(client);
+      client = edda.wrapAwsClient(client);
     return client;
   }
 
   public static AmazonCloudWatch newCloudWatchClient() {
-    return newCloudWatchClient(DEFAULT_PROVIDER.get());
+    return newCloudWatchClient(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
   }
 
-  public static AmazonCloudWatch newCloudWatchClient(AWSCredentialsProvider provider) {
+  public static AmazonCloudWatch newCloudWatchClient(AWSCredentialsProvider provider, String vip) {
     AwsConfiguration config = config();
-    return newCloudWatchClient(config, provider, NetflixEnvironment.region());
+    return newCloudWatchClient(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonCloudWatch newCloudWatchClient(
     AwsConfiguration config,
     AWSCredentialsProvider provider,
+    String vip,
     String region
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("CloudWatch mock not yet supported");
-    if (!config.wrapAwsClient())
-      return new EddaCloudWatchClient(config).readOnly();
+
+    EddaCloudWatchClient edda = new EddaCloudWatchClient(config, vip, region);
+
+    if (!config.wrapAwsClient()) return edda.readOnly();
 
     AmazonCloudWatch client = new AmazonCloudWatchClient(provider, clientConfig(config));
     client.setEndpoint("monitoring." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = new EddaCloudWatchClient(config).wrapAwsClient(client);
+      client = edda.wrapAwsClient(client);
     return client;
   }
 
   public static AmazonEC2 newEc2Client() {
-    return newEc2Client(DEFAULT_PROVIDER.get());
+    return newEc2Client(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
   }
 
-  public static AmazonEC2 newEc2Client(AWSCredentialsProvider provider) {
+  public static AmazonEC2 newEc2Client(AWSCredentialsProvider provider, String vip) {
     AwsConfiguration config = config();
-    return newEc2Client(config, provider, NetflixEnvironment.region());
+    return newEc2Client(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonEC2 newEc2Client(
     AwsConfiguration config,
     AWSCredentialsProvider provider,
+    String vip,
     String region
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("EC2 mock not yet supported");
-    if (!config.wrapAwsClient())
-      return new EddaEc2Client(config).readOnly();
+
+    EddaEc2Client edda = new EddaEc2Client(config, vip, region);
+    if (!config.wrapAwsClient()) return edda.readOnly();
 
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = new EddaEc2Client(config).wrapAwsClient(client);
+      client = edda.wrapAwsClient(client);
     return client;
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient() {
-    return newElasticLoadBalancingClient(DEFAULT_PROVIDER.get());
+    return newElasticLoadBalancingClient(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
-    AWSCredentialsProvider provider
+    AWSCredentialsProvider provider,
+    String vip
   ) {
     AwsConfiguration config = config();
-    return newElasticLoadBalancingClient(config, provider, NetflixEnvironment.region());
+    return newElasticLoadBalancingClient(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
     AwsConfiguration config
   ) {
     AWSCredentialsProvider provider = DEFAULT_PROVIDER.get();
-    return newElasticLoadBalancingClient(config, provider, NetflixEnvironment.region());
+    String vip = DEFAULT_VIP.get();
+    return newElasticLoadBalancingClient(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonElasticLoadBalancing newElasticLoadBalancingClient(
     AwsConfiguration config,
     AWSCredentialsProvider provider,
+    String vip,
     String region
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("ElasticLoadBalancing mock not yet supported");
-    if (!config.wrapAwsClient())
-      return new EddaElasticLoadBalancingClient(config).readOnly();
+
+    EddaElasticLoadBalancingClient edda = new EddaElasticLoadBalancingClient(config, vip, region);
+
+    if (!config.wrapAwsClient()) edda.readOnly();
 
     AmazonElasticLoadBalancing client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
     client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
     if (config.useEdda())
-      client = new EddaElasticLoadBalancingClient(config).wrapAwsClient(client);
+      client = edda.wrapAwsClient(client);
     return client;
   }
 
   public static AmazonRoute53 newRoute53Client() {
-    return newRoute53Client(DEFAULT_PROVIDER.get());
+    return newRoute53Client(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
   }
 
-  public static AmazonRoute53 newRoute53Client(AWSCredentialsProvider provider) {
+  public static AmazonRoute53 newRoute53Client(AWSCredentialsProvider provider, String vip) {
     AwsConfiguration config = config();
-    return newRoute53Client(config, provider, NetflixEnvironment.region());
+    return newRoute53Client(config, provider, vip, NetflixEnvironment.region());
   }
 
   public static AmazonRoute53 newRoute53Client(
     AwsConfiguration config,
     AWSCredentialsProvider provider,
+    String vip,
     String region
   ) {
     if (config.useMock())
       throw new UnsupportedOperationException("Route53 mock not yet supported");
-    if (!config.wrapAwsClient())
-      return new EddaRoute53Client(config).readOnly();
+
+    EddaRoute53Client edda = new EddaRoute53Client(config, vip, region);
+
+    if (!config.wrapAwsClient()) edda.readOnly();
 
     AmazonRoute53 client = new AmazonRoute53Client(provider, clientConfig(config));
     if (config.useEdda())
-      client = new EddaRoute53Client(config).wrapAwsClient(client);
+      client = edda.wrapAwsClient(client);
     return client;
   }
 }

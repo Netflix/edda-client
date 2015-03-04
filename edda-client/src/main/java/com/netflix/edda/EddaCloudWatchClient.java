@@ -26,8 +26,8 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.*;
 
 public class EddaCloudWatchClient extends EddaAwsClient {
-  public EddaCloudWatchClient(AwsConfiguration config) {
-    super(config);
+  public EddaCloudWatchClient(AwsConfiguration config, String vip, String region) {
+    super(config, vip, region);
   }
 
   public AmazonCloudWatch readOnly() {
