@@ -52,7 +52,7 @@ object Sonatype {
     pomIncludeRepository := { _ => false },
     
     pomExtra := (
-      <url>https://github.com/netflix/iep/wiki</url>
+      <url>https://github.com/netflix/edda-client/wiki</url>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -61,8 +61,8 @@ object Sonatype {
         </license>
       </licenses>
       <scm>
-        <url>git@github.com:netflix/iep.git</url>
-        <connection>scm:git:git@github.com:netflix/iep.git</connection>
+        <url>git@github.com:netflix/edda-client.git</url>
+        <connection>scm:git:git@github.com:netflix/edda-client.git</connection>
       </scm>
       <developers>
         <developer>
