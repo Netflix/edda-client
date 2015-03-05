@@ -8,7 +8,6 @@ import com.netflix.edda.EddaContext;
 
 public class EddaModule extends AbstractModule {
   @Override protected void configure() {
-    install(new SpectatorModule());
     bind(EddaContext.class).asEagerSingleton();
 
     try {
