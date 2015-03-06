@@ -22,6 +22,8 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.inject.Provider;
+
 import io.netty.buffer.ByteBuf;
 import iep.io.reactivex.netty.RxNetty;
 import iep.io.reactivex.netty.protocol.http.server.HttpServer;
@@ -32,6 +34,7 @@ import com.amazonaws.services.ec2.model.*;
 
 import com.netflix.iep.config.Configuration;
 import com.netflix.iep.config.TestResourceConfiguration;
+import com.netflix.iep.http.RxHttp;
 
 public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
@@ -46,6 +49,11 @@ public class Ec2ClientTests {
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
     TestResourceConfiguration.load("edda.test.properties", subs);
+    new EddaContext(new Provider<RxHttp>(){
+      private RxHttp rxHttp = new RxHttp(null);
+      @Override
+      public RxHttp get() { return rxHttp; }
+    }).start();
   }
 
   @Test
