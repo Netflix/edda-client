@@ -55,7 +55,7 @@ abstract public class EddaAwsClient {
   }
 
   protected byte[] doGet(final String uri) {
-    return EddaContext.getRxHttp().get(mkUrl(uri))
+    return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
     .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
       @Override
       public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {

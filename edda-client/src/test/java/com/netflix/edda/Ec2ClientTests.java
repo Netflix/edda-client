@@ -20,9 +20,8 @@ import java.util.HashMap;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import org.junit.AfterClass;
 import org.junit.Test;
-
-import javax.inject.Provider;
 
 import io.netty.buffer.ByteBuf;
 import iep.io.reactivex.netty.RxNetty;
@@ -39,6 +38,8 @@ import com.netflix.iep.http.RxHttp;
 public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
 
+  private static EddaContext eddaContext = new EddaContext(new RxHttp(null));
+
   @BeforeClass
   public static void setUp() throws Exception {
     server = RxNetty.createHttpServer(0, new ClassPathFileRequestHandler(".")).start();
@@ -49,11 +50,12 @@ public class Ec2ClientTests {
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
     TestResourceConfiguration.load("edda.test.properties", subs);
-    new EddaContext(new Provider<RxHttp>(){
-      private RxHttp rxHttp = new RxHttp(null);
-      @Override
-      public RxHttp get() { return rxHttp; }
-    }).start();
+    eddaContext.start();
+  }
+
+  @AfterClass
+  public static void tearDown() throws Exception {
+    eddaContext.stop();
   }
 
   @Test

@@ -6,7 +6,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.inject.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +24,10 @@ public class EddaContext {
     return ctx;
   }
 
-  protected static RxHttp getRxHttp() {
-    return getContext().getRxHttpProvider().get();
-  }
-
-  private final Provider<RxHttp> rxHttp;
+  private final RxHttp rxHttp;
 
   @Inject
-  public EddaContext(Provider<RxHttp> rxHttp) {
+  public EddaContext(RxHttp rxHttp) {
     this.rxHttp = rxHttp;
   }
 
@@ -46,7 +41,7 @@ public class EddaContext {
     CONTEXT.set(null);
   }
 
-  public Provider<RxHttp> getRxHttpProvider() {
+  public RxHttp getRxHttp() {
     return rxHttp;
   }
 }
