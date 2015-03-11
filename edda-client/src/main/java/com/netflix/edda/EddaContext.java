@@ -10,7 +10,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netflix.iep.http.RxHttp;
+import iep.com.netflix.iep.http.RxHttp;
 
 @Singleton
 public class EddaContext {
