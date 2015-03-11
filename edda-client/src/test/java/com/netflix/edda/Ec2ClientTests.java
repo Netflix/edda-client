@@ -33,7 +33,7 @@ import com.amazonaws.services.ec2.model.*;
 
 import com.netflix.iep.config.Configuration;
 import com.netflix.iep.config.TestResourceConfiguration;
-import com.netflix.iep.http.RxHttp;
+import iep.com.netflix.iep.http.RxHttp;
 
 public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
