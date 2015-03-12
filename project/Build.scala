@@ -23,7 +23,9 @@ object MainBuild extends Build {
 
   lazy val root = project.in(file("."))
     .aggregate(
-      `edda-client`)
+      `edda-client`,
+      `edda-client-nflx-plugin`
+    )
     .settings(buildSettings: _*)
     .settings(BuildSettings.noPackaging: _*)
 
@@ -34,9 +36,16 @@ object MainBuild extends Build {
       Dependencies.awsObjectMapper,
       Dependencies.iepConfig,
       Dependencies.iepNflxEnv,
-      Dependencies.iepRxHttp,
+      Dependencies.iepRxHttp
+    ))
+
+  lazy val `edda-client-nflx-plugin` = project
+    .settings(buildSettings: _*)
+    .settings(libraryDependencies ++= commonDeps)
+    .settings(libraryDependencies ++= Seq(
       Dependencies.spectatorNflx
     ))
+    .dependsOn(`edda-client`)
 
   lazy val commonDeps = Seq(
     Dependencies.junitInterface % "test",
