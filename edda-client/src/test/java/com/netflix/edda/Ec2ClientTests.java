@@ -50,12 +50,12 @@ public class Ec2ClientTests {
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
     TestResourceConfiguration.load("edda.test.properties", subs);
-    eddaContext.start();
+    eddaContext.init();
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
-    eddaContext.stop();
+    eddaContext.destroy();
   }
 
   @Test
