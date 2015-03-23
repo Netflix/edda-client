@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -55,40 +56,46 @@ abstract public class EddaAwsClient {
   }
 
   protected byte[] doGet(final String uri) {
-    return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
-    .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
-      @Override
-      public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-        if (response.getStatus().code() != 200) {
-          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
-          e.setStatusCode(response.getStatus().code());
-          e.setErrorCode("Edda");
-          e.setRequestId(uri);
-          return iep.rx.Observable.error(e);
-        }
-        return response.getContent()
-        .reduce(
-          new ByteArrayOutputStream(),
-          new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
-            @Override
-            public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
-              try { bb.readBytes(out, bb.readableBytes()); }
-              catch (IOException e) { throw new RuntimeException(e); }
-              return out;
+    try {
+      return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
+      .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
+        @Override
+        public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
+          if (response.getStatus().code() != 200) {
+            AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+            e.setStatusCode(response.getStatus().code());
+            e.setErrorCode("Edda");
+            e.setRequestId(uri);
+            return iep.rx.Observable.error(e);
+          }
+          return response.getContent()
+          .reduce(
+            new ByteArrayOutputStream(),
+            new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
+              @Override
+              public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
+                try { bb.readBytes(out, bb.readableBytes()); }
+                catch (IOException e) { throw new RuntimeException(e); }
+                return out;
+              }
             }
-          }
-        )
-        .map(new Func1<ByteArrayOutputStream,byte[]>() {
-          @Override
-          public byte[] call(ByteArrayOutputStream out) {
-            return out.toByteArray();
-          }
-        });
-      }
-    })
-    .subscribeOn(Schedulers.io())
-    .toBlocking()
-    .single();
+          )
+          .map(new Func1<ByteArrayOutputStream,byte[]>() {
+            @Override
+            public byte[] call(ByteArrayOutputStream out) {
+              return out.toByteArray();
+            }
+          });
+        }
+      })
+      .subscribeOn(Schedulers.io())
+      .toBlocking()
+      .toFuture()
+      .get(2, TimeUnit.MINUTES);
+    }
+    catch (Exception e) {
+      throw new RuntimeException("failed to get url: " + uri, e);
+    }
   }
 
   protected String mkUrl(String url) {
