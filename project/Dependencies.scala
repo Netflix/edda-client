@@ -7,7 +7,7 @@ object Dependencies {
     val spectator = "0.21.0"
     val iep       = "0.1.13"
     val rxjava    = "1.0.8"
-    val rxnetty   = "0.4.7"
+    val rxnetty   = "0.4.8"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
