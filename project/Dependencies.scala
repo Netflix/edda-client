@@ -5,9 +5,10 @@ object Dependencies {
     val scala     = "2.11.5"
     val slf4j     = "1.7.10"
     val spectator = "0.21.0"
-    val iep       = "0.1.13"
+    val iep       = "0.1.14-SNAPSHOT"
     val rxjava    = "1.0.8"
     val rxnetty   = "0.4.8"
+    val rxAwsSdk  = "0.1.2-SNAPSHOT"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
@@ -21,14 +22,15 @@ object Dependencies {
   val karyonCore      = "com.netflix.karyon2" % "karyon-core" % "2.2.00-ALPHA7"
   val iepConfig       = "com.netflix.iep" % "iep-config" % Versions.iep
   val iepNflxEnv      = "com.netflix.iep" % "iep-nflxenv" % Versions.iep
-  val iepRxHttp       = "com.netflix.iep-shadow" % "iepshadow-iep-rxhttp" % Versions.iep
+  val iepRxHttp       = "com.netflix.iep" % "iep-rxhttp" % Versions.iep
   val junit           = "junit" % "junit" % "4.10"
   val junitInterface  = "com.novocode" % "junit-interface" % "0.11"
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"
-  val rxjava          = "com.netflix.iep-shadow" % "iepshadow-rxjava" % Versions.rxjava
-  val rxnetty         = "com.netflix.iep-shadow" % "iepshadow-rxnetty" % Versions.rxnetty
-  val rxnettyCtxts    = "com.netflix.iep-shadow" % "iepshadow-rxnetty-contexts" % Versions.rxnetty
-  val rxnettySpectator= "com.netflix.iep-shadow" % "iepshadow-rxnetty-spectator" % Versions.rxnetty
+  val rxAwsSdk        = "com.netflix.rx-aws-java-sdk" % "rx-aws-java-sdk" % Versions.rxAwsSdk
+  val rxjava          = "io.reactivex" % "rxjava" % Versions.rxjava
+  val rxnetty         = "io.reactivex" % "rxnetty" % Versions.rxnetty
+  val rxnettyCtxts    = "io.reactivex" % "rxnetty-contexts" % Versions.rxnetty
+  val rxnettySpectator= "io.reactivex" % "rxnetty-spectator" % Versions.rxnetty
   val scalaLibrary    = "org.scala-lang" % "scala-library" % Versions.scala
   val scalaLibraryAll = "org.scala-lang" % "scala-library-all" % Versions.scala
   val scalaLogging    = "com.typesafe.scala-logging" % "scala-logging_2.11" % "3.1.0"

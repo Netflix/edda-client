@@ -16,7 +16,7 @@ object MainBuild extends Build {
               crossPaths := false,
            sourcesInBase := false,
         autoScalaLibrary := false,
-               resolvers += Resolver.sonatypeRepo("snapshots"),
+       externalResolvers := BuildSettings.resolvers,
      checkLicenseHeaders := License.checkLicenseHeaders(streams.value.log, sourceDirectory.value),
     formatLicenseHeaders := License.formatLicenseHeaders(streams.value.log, sourceDirectory.value)
   )
@@ -33,7 +33,7 @@ object MainBuild extends Build {
     .settings(buildSettings: _*)
     .settings(libraryDependencies ++= commonDeps)
     .settings(libraryDependencies ++= Seq(
-      Dependencies.awsObjectMapper,
+      Dependencies.rxAwsSdk,
       Dependencies.iepConfig,
       Dependencies.iepNflxEnv,
       Dependencies.iepRxHttp

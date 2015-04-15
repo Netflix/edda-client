@@ -37,6 +37,7 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.AmazonEC2RxNettyClient;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.route53.AmazonRoute53;
@@ -190,6 +191,34 @@ public class AwsClientFactory {
     if (!config.wrapAwsClient()) return edda.readOnly();
 
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
+    client.setEndpoint("ec2." + region + ".amazonaws.com");
+    if (config.useEdda())
+      client = edda.wrapAwsClient(client);
+    return client;
+  }
+
+  public static AmazonEC2RxNettyClient newEc2RxNettyClient() {
+    return newEc2RxNettyClient(DEFAULT_PROVIDER.get(), DEFAULT_VIP.get());
+  }
+
+  public static AmazonEC2RxNettyClient newEc2RxNettyClient(AWSCredentialsProvider provider, String vip) {
+    AwsConfiguration config = config();
+    return newEc2RxNettyClient(config, provider, vip, NetflixEnvironment.region());
+  }
+
+  public static AmazonEC2RxNettyClient newEc2RxNettyClient(
+    AwsConfiguration config,
+    AWSCredentialsProvider provider,
+    String vip,
+    String region
+  ) {
+    if (config.useMock())
+      throw new UnsupportedOperationException("EC2 mock not yet supported");
+
+    EddaEc2RxNettyClient edda = new EddaEc2RxNettyClient(config, vip, region);
+    if (!config.wrapAwsClient()) return edda.readOnly();
+
+    AmazonEC2RxNettyClient client = new AmazonEC2RxNettyClient(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
     if (config.useEdda())
       client = edda.wrapAwsClient(client);

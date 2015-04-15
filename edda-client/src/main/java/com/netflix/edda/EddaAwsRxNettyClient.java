@@ -31,15 +31,16 @@ import rx.schedulers.Schedulers;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.ServiceResult;
 
 import com.netflix.edda.util.ProxyHelper;
 
-abstract public class EddaAwsClient {
+abstract public class EddaAwsRxNettyClient {
   final AwsConfiguration config;
   final String vip;
   final String region;
 
-  public EddaAwsClient(AwsConfiguration config, String vip, String region) {
+  public EddaAwsRxNettyClient(AwsConfiguration config, String vip, String region) {
     this.config = config;
     this.vip = vip;
     this.region = region;
@@ -55,43 +56,31 @@ abstract public class EddaAwsClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  protected byte[] doGet(final String uri) {
+  protected Observable<ServiceResult<byte[]>> doGet(final String uri) {
     try {
       return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
-      .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
-        @Override
-        public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-          if (response.getStatus().code() != 200) {
-            AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
-            e.setStatusCode(response.getStatus().code());
-            e.setErrorCode("Edda");
-            e.setRequestId(uri);
-            return rx.Observable.error(e);
-          }
-          return response.getContent()
-          .reduce(
-            new ByteArrayOutputStream(),
-            new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
-              @Override
-              public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
-                try { bb.readBytes(out, bb.readableBytes()); }
-                catch (IOException e) { throw new RuntimeException(e); }
-                return out;
-              }
-            }
-          )
-          .map(new Func1<ByteArrayOutputStream,byte[]>() {
-            @Override
-            public byte[] call(ByteArrayOutputStream out) {
-              return out.toByteArray();
-            }
-          });
+      .flatMap(response -> {
+        if (response.getStatus().code() != 200) {
+          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+          e.setStatusCode(response.getStatus().code());
+          e.setErrorCode("Edda");
+          e.setRequestId(uri);
+          return rx.Observable.error(e);
         }
+        return response.getContent()
+        .reduce(
+          new ByteArrayOutputStream(),
+          (out, bb) -> {
+              try { bb.readBytes(out, bb.readableBytes()); }
+              catch (IOException e) { throw new RuntimeException(e); }
+              return out;
+          }
+        )
+        .map(out -> {
+          return new ServiceResult<byte[]>(0, out.toByteArray());
+        });
       })
-      .subscribeOn(Schedulers.io())
-      .toBlocking()
-      .toFuture()
-      .get(2, TimeUnit.MINUTES);
+      .timeout(2, TimeUnit.MINUTES);
     }
     catch (Exception e) {
       throw new RuntimeException("failed to get url: " + uri, e);
