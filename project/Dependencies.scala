@@ -8,11 +8,12 @@ object Dependencies {
     val iep       = "0.1.13"
     val rxjava    = "1.0.8"
     val rxnetty   = "0.4.8"
-    val rxAwsSdk  = "0.1.2"
+    val rxAwsSdk  = "0.1.3-SNAPSHOT"
+    val awsMapper = "1.9.16.2"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
-  val awsObjectMapper = "com.netflix.awsobjectmapper" % "awsobjectmapper" % "1.9.16.2"
+  val awsObjectMapper = "com.netflix.awsobjectmapper" % "awsobjectmapper" % Versions.awsMapper
   val equalsVerifier  = "nl.jqno.equalsverifier" % "equalsverifier" % "1.5.1"
   val eureka          = "com.netflix.eureka" % "eureka-client" % "1.1.147"
   val governator      = "com.netflix.governator" % "governator" % "1.3.3"
