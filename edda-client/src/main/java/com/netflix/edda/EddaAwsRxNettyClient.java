@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
