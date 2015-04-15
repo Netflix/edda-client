@@ -23,7 +23,7 @@ object Dependencies {
   val karyonCore      = "com.netflix.karyon2" % "karyon-core" % "2.2.00-ALPHA7"
   val iepConfig       = "com.netflix.iep" % "iep-config" % Versions.iep
   val iepNflxEnv      = "com.netflix.iep" % "iep-nflxenv" % Versions.iep
-  val iepRxHttp       = "com.netflix.iep" % "iep-rxhttp" % Versions.iep
+  val iepRxHttp       = "com.netflix.iep-shadow" % "iepshadow-iep-rxhttp" % "0.1.13.1-SNAPSHOT" //Versions.iep
   val junit           = "junit" % "junit" % "4.10"
   val junitInterface  = "com.novocode" % "junit-interface" % "0.11"
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"

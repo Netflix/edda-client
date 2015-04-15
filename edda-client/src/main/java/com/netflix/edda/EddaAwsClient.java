@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,35 +56,26 @@ abstract public class EddaAwsClient {
   protected byte[] doGet(final String uri) {
     try {
       return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
-      .flatMap(new Func1<HttpClientResponse<ByteBuf>,Observable<byte[]>>() {
-        @Override
-        public Observable<byte[]> call(HttpClientResponse<ByteBuf> response) {
-          if (response.getStatus().code() != 200) {
-            AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
-            e.setStatusCode(response.getStatus().code());
-            e.setErrorCode("Edda");
-            e.setRequestId(uri);
-            return rx.Observable.error(e);
-          }
-          return response.getContent()
-          .reduce(
-            new ByteArrayOutputStream(),
-            new Func2<ByteArrayOutputStream,ByteBuf,ByteArrayOutputStream>() {
-              @Override
-              public ByteArrayOutputStream call(ByteArrayOutputStream out, ByteBuf bb) {
-                try { bb.readBytes(out, bb.readableBytes()); }
-                catch (IOException e) { throw new RuntimeException(e); }
-                return out;
-              }
-            }
-          )
-          .map(new Func1<ByteArrayOutputStream,byte[]>() {
-            @Override
-            public byte[] call(ByteArrayOutputStream out) {
-              return out.toByteArray();
-            }
-          });
+      .flatMap(response -> {
+        if (response.getStatus().code() != 200) {
+          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+          e.setStatusCode(response.getStatus().code());
+          e.setErrorCode("Edda");
+          e.setRequestId(uri);
+          return rx.Observable.error(e);
         }
+        return response.getContent()
+        .reduce(
+          new ByteArrayOutputStream(),
+          (out, bb) -> {
+            try { bb.readBytes(out, bb.readableBytes()); }
+            catch (IOException e) { throw new RuntimeException(e); }
+            return out;
+          }
+        )
+        .map(out -> {
+          return out.toByteArray();
+        });
       })
       .subscribeOn(Schedulers.io())
       .toBlocking()
