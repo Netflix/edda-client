@@ -7,7 +7,7 @@ object Dependencies {
     val spectator = "0.21.0"
     val iep       = "0.1.13"
     val rxjava    = "1.0.8"
-    val rxnetty   = "0.4.8"
+    val rxnetty   = "0.4.8.1-SNAPSHOT"
     val rxAwsSdk  = "0.1.3-SNAPSHOT"
     val awsMapper = "1.9.16.2"
   }
@@ -29,9 +29,9 @@ object Dependencies {
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"
   val rxAwsSdk        = "com.netflix.rx-aws-java-sdk" % "rx-aws-java-sdk" % Versions.rxAwsSdk
   val rxjava          = "io.reactivex" % "rxjava" % Versions.rxjava
-  val rxnetty         = "io.reactivex" % "rxnetty" % Versions.rxnetty
-  val rxnettyCtxts    = "io.reactivex" % "rxnetty-contexts" % Versions.rxnetty
-  val rxnettySpectator= "io.reactivex" % "rxnetty-spectator" % Versions.rxnetty
+  val rxnetty         = "com.netflix.iep-shadow" % "iepshadow-rxnetty" % Versions.rxnetty
+  val rxnettyCtxts    = "com.netflix.iep-shadow" % "iepshadow-rxnetty-contexts" % Versions.rxnetty
+  val rxnettySpectator= "com.netflix.iep-shadow" % "iepshadow-rxnetty-spectator" % Versions.rxnetty
   val scalaLibrary    = "org.scala-lang" % "scala-library" % Versions.scala
   val scalaLibraryAll = "org.scala-lang" % "scala-library-all" % Versions.scala
   val scalaLogging    = "com.typesafe.scala-logging" % "scala-logging_2.11" % "3.1.0"
