@@ -2,13 +2,14 @@ import sbt._
 
 object Dependencies {
   object Versions {
-    val scala     = "2.11.5"
+    val scala     = "2.11.6"
     val slf4j     = "1.7.10"
     val spectator = "0.21.0"
     val iep       = "0.1.13"
+    val iepShadow = "0.1.13.1"
     val rxjava    = "1.0.8"
-    val rxnetty   = "0.4.8.1-SNAPSHOT"
-    val rxAwsSdk  = "0.1.3-SNAPSHOT"
+    val rxnetty   = "0.4.8.1"
+    val rxAwsSdk  = "0.1.3"
     val awsMapper = "1.9.16.2"
   }
 
@@ -23,7 +24,7 @@ object Dependencies {
   val karyonCore      = "com.netflix.karyon2" % "karyon-core" % "2.2.00-ALPHA7"
   val iepConfig       = "com.netflix.iep" % "iep-config" % Versions.iep
   val iepNflxEnv      = "com.netflix.iep" % "iep-nflxenv" % Versions.iep
-  val iepRxHttp       = "com.netflix.iep-shadow" % "iepshadow-iep-rxhttp" % "0.1.13.1-SNAPSHOT" //Versions.iep
+  val iepRxHttp       = "com.netflix.iep-shadow" % "iepshadow-iep-rxhttp" % Versions.iepShadow
   val junit           = "junit" % "junit" % "4.10"
   val junitInterface  = "com.novocode" % "junit-interface" % "0.11"
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"
