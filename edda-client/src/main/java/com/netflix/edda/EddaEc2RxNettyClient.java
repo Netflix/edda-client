@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.ec2.AmazonEC2RxNettyClient;
+import com.amazonaws.services.ec2.AmazonEC2RxNetty;
 import com.amazonaws.services.ec2.model.*;
 
 import com.amazonaws.services.ServiceResult;
@@ -35,12 +35,12 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     super(config, vip, region);
   }
 
-  public AmazonEC2RxNettyClient readOnly() {
-    return readOnly(AmazonEC2RxNettyClient.class);
+  public AmazonEC2RxNetty readOnly() {
+    return readOnly(AmazonEC2RxNetty.class);
   }
 
-  public AmazonEC2RxNettyClient wrapAwsClient(AmazonEC2RxNettyClient delegate) {
-    return wrapAwsClient(AmazonEC2RxNettyClient.class, delegate);
+  public AmazonEC2RxNetty wrapAwsClient(AmazonEC2RxNetty delegate) {
+    return wrapAwsClient(AmazonEC2RxNetty.class, delegate);
   }
 
   public Observable<PaginatedServiceResult<DescribeClassicLinkInstancesResult>> describeClassicLinkInstances() {
