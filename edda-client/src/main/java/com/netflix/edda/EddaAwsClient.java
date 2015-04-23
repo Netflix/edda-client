@@ -77,7 +77,6 @@ abstract public class EddaAwsClient {
           return out.toByteArray();
         });
       })
-      .subscribeOn(Schedulers.io())
       .toBlocking()
       .toFuture()
       .get(2, TimeUnit.MINUTES);
