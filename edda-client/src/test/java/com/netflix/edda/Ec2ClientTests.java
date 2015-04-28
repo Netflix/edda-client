@@ -32,6 +32,7 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
 import com.netflix.iep.config.Configuration;
+import com.netflix.iep.config.DynamicPropertiesConfiguration;
 import com.netflix.iep.config.TestResourceConfiguration;
 import iep.com.netflix.iep.http.RxHttp;
 
@@ -39,6 +40,7 @@ public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
 
   private static EddaContext eddaContext = new EddaContext(new RxHttp(null));
+  private static DynamicPropertiesConfiguration config = null;
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -49,13 +51,16 @@ public class Ec2ClientTests {
       put("user.dir", userDir);
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
-    TestResourceConfiguration.load("edda.test.properties", subs);
+
+    config = new DynamicPropertiesConfiguration(TestResourceConfiguration.load("edda.test.properties", subs));
+    config.init();
     eddaContext.init();
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
     eddaContext.destroy();
+    config.destroy();
   }
 
   @Test
