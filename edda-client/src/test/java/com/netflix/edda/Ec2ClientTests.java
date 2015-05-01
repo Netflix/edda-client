@@ -31,6 +31,10 @@ import iep.io.reactivex.netty.protocol.http.server.file.ClassPathFileRequestHand
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 
+import com.netflix.archaius.Config;
+import com.netflix.archaius.DefaultPropertyFactory;
+import com.netflix.archaius.PropertyFactory;
+
 import com.netflix.iep.config.Configuration;
 import com.netflix.iep.config.DynamicPropertiesConfiguration;
 import com.netflix.iep.config.TestResourceConfiguration;
@@ -52,7 +56,9 @@ public class Ec2ClientTests {
       put("resources.url", "http://localhost:" + server.getServerPort());
     }};
 
-    config = new DynamicPropertiesConfiguration(TestResourceConfiguration.load("edda.test.properties", subs));
+    Config cfg = TestResourceConfiguration.load("edda.test.properties", subs);
+    PropertyFactory factory = new DefaultPropertyFactory(cfg);
+    config = new DynamicPropertiesConfiguration(factory);
     config.init();
     eddaContext.init();
   }
