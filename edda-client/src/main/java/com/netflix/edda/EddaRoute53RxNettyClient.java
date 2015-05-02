@@ -68,6 +68,27 @@ public class EddaRoute53RxNettyClient extends EddaAwsRxNettyClient {
     });
   }
 
+  public Observable<PaginatedServiceResult<ListResourceRecordSetsResult>> listResourceRecordSets() {
+    return Observable.defer(() -> {
+      TypeReference<List<ResourceRecordSet>> ref = new TypeReference<List<ResourceRecordSet>>() {};
+
+      String url = config.url() + "/api/v2/aws/hostedRecords;_expand";
+      return doGet(url).map(sr -> {
+        try {
+          List<ResourceRecordSet> resourceRecordSets = parse(ref, sr.result);
+          return new PaginatedServiceResult<ListResourceRecordSetsResult>(
+            sr.startTime,
+            null,
+            new ListResourceRecordSetsResult().withResourceRecordSets(resourceRecordSets)
+          );
+        }
+        catch (IOException e) {
+          throw new AmazonClientException("Faled to parse " + url, e);
+        }
+      });
+    });
+  }
+
   public Observable<PaginatedServiceResult<ListResourceRecordSetsResult>> listResourceRecordSets(
     final ListResourceRecordSetsRequest request
   ) {
