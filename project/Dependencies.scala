@@ -9,8 +9,8 @@ object Dependencies {
     val iepShadow = "0.1.16.4"
     val rxjava    = "1.0.9"
     val rxnetty   = "0.4.8.4"
-    val rxAwsSdk  = "0.1.10"
-    val awsMapper = "1.9.33.1"
+    val rxAwsSdk  = "0.1.11"
+    val awsMapper = "1.10.5.0"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
