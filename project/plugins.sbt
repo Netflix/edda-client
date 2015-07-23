@@ -1,3 +1,4 @@
+resolvers += Resolver.url("sbt-plugins", new URL("https://bintray.com/artifact/download/sbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
 
