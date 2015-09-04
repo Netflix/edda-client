@@ -140,7 +140,7 @@ public class AwsClientFactory {
 
     EddaAutoScalingClient edda = new EddaAutoScalingClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
@@ -169,7 +169,7 @@ public class AwsClientFactory {
 
     EddaAutoScalingRxNettyClient edda = new EddaAutoScalingRxNettyClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonAutoScalingRxNetty client = new AmazonAutoScalingRxNettyClient(provider, clientConfig(config));
     client.setEndpoint("autoscaling." + region + ".amazonaws.com");
@@ -199,7 +199,7 @@ public class AwsClientFactory {
 
     EddaCloudWatchClient edda = new EddaCloudWatchClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonCloudWatch client = new AmazonCloudWatchClient(provider, clientConfig(config));
     client.setEndpoint("monitoring." + region + ".amazonaws.com");
@@ -228,7 +228,7 @@ public class AwsClientFactory {
 
     EddaCloudWatchRxNettyClient edda = new EddaCloudWatchRxNettyClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonCloudWatchRxNetty client = new AmazonCloudWatchRxNettyClient(provider, clientConfig(config));
     client.setEndpoint("monitoring." + region + ".amazonaws.com");
@@ -257,7 +257,7 @@ public class AwsClientFactory {
       throw new UnsupportedOperationException("EC2 mock not yet supported");
 
     EddaEc2Client edda = new EddaEc2Client(config, vip, region);
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
@@ -285,7 +285,7 @@ public class AwsClientFactory {
       throw new UnsupportedOperationException("EC2 mock not yet supported");
 
     EddaEc2RxNettyClient edda = new EddaEc2RxNettyClient(config, vip, region);
-    if (!config.wrapAwsClient()) return edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonEC2RxNetty client = new AmazonEC2RxNettyClient(provider, clientConfig(config));
     client.setEndpoint("ec2." + region + ".amazonaws.com");
@@ -326,7 +326,7 @@ public class AwsClientFactory {
 
     EddaElasticLoadBalancingClient edda = new EddaElasticLoadBalancingClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonElasticLoadBalancing client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
     client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
@@ -366,7 +366,7 @@ public class AwsClientFactory {
 
     EddaElasticLoadBalancingRxNettyClient edda = new EddaElasticLoadBalancingRxNettyClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonElasticLoadBalancingRxNetty client = new AmazonElasticLoadBalancingRxNettyClient(provider, clientConfig(config));
     client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
@@ -396,7 +396,7 @@ public class AwsClientFactory {
 
     EddaRoute53Client edda = new EddaRoute53Client(config, vip, region);
 
-    if (!config.wrapAwsClient()) edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonRoute53 client = new AmazonRoute53Client(provider, clientConfig(config));
     if (config.useEdda())
@@ -424,7 +424,7 @@ public class AwsClientFactory {
 
     EddaRoute53RxNettyClient edda = new EddaRoute53RxNettyClient(config, vip, region);
 
-    if (!config.wrapAwsClient()) edda.readOnly();
+    if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
     AmazonRoute53RxNetty client = new AmazonRoute53RxNettyClient(provider, clientConfig(config));
     if (config.useEdda())
