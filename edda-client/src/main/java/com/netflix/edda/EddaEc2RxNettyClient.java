@@ -93,10 +93,26 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
   ) {
     return Observable.defer(() -> {
       validateEmpty("ExecutableUsers", request.getExecutableUsers());
-      validateEmpty("Filter", request.getFilters());
+      List<Filter> filters = request.getFilters();
+      String path = "aws/images";
+      if (filters != null && filters.size() > 0) {
+        if (
+          filters.size() == 1 &&
+          filters.get(0) != null &&
+          "is-public".equals(filters.get(0).getName()) &&
+           filters.get(0).getValues() != null &&
+           filters.get(0).getValues().size() == 1 &&
+           "false".equals(filters.get(0).getValues().get(0))
+        ) {
+          path = "view/images";
+        }
+        else {
+          throw new UnsupportedOperationException("filters only support is-public=false");
+        }
+      }
 
       TypeReference<List<Image>> ref = new TypeReference<List<Image>>() {};
-      String url = config.url() + "/api/v2/aws/images;_expand";
+      String url = config.url() + "/api/v2/" + path + ";_expand";
       return doGet(url).map(sr -> {
         try {
           List<Image> images = parse(ref, sr.result);
