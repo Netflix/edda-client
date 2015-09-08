@@ -76,18 +76,21 @@ public class EddaEc2Client extends EddaAwsClient {
     validateEmpty("ExecutableUsers", request.getExecutableUsers());
     List<Filter> filters = request.getFilters();
     String path = "aws/images";
-    if (filters != null && filters.size() == 1) {
-      Filter f = filters.get(0);
-      String n = f.getName();
-      List<String> vs = f.getValues();
-        if("is-public".equals(n) && vs != null && vs.size() == 1 && "false".equals(vs.get(0))) {
-          path = "view/images";
-        }
-        else {
-          throw new UnsupportedOperationException("filters only support is-public=false");
-        }
+    if (filters != null && filters.size() > 0) {
+      if (
+        filters.size() == 1 &&
+        filters.get(0) != null &&
+        "is-public".equals(filters.get(0).getName()) &&
+         filters.get(0).getValues() != null &&
+         filters.get(0).getValues().size() == 1 &&
+         "false".equals(filters.get(0).getValues().get(0))
+      ) {
+        path = "view/images";
+      }
+      else {
+        throw new UnsupportedOperationException("filters only support is-public=false");
+      }
     }
-    else validateEmpty("Filter", request.getFilters());
 
     TypeReference<List<Image>> ref = new TypeReference<List<Image>>() {};
     String url = config.url() + "/api/v2/"+ path + ";_expand";
