@@ -4,12 +4,12 @@ object Dependencies {
   object Versions {
     val scala     = "2.11.6"
     val slf4j     = "1.7.10"
-    val spectator = "0.24.0"
-    val iep       = "0.1.19"
-    val iepShadow = "0.1.16.4"
-    val rxjava    = "1.0.9"
-    val rxnetty   = "0.4.8.4"
-    val rxAwsSdk  = "0.1.12"
+    val spectator = "0.30.0"
+    val iep       = "0.1.48-SNAPSHOT"
+    val iepShadow = "0.1.26.8"
+    val rxjava    = "1.0.14"
+    val rxnetty   = "0.4.10.8"
+    val rxAwsSdk  = "0.1.15-SNAPSHOT"
     val awsMapper = "1.10.16.0"
   }
 
