@@ -380,4 +380,42 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
       });
     });
   }
+
+  public Observable<ServiceResult<DescribeVpcClassicLinkResult>> describeVpcClassicLink() {
+    return describeVpcClassicLink(new DescribeVpcClassicLinkRequest());
+  }
+
+  public Observable<ServiceResult<DescribeVpcClassicLinkResult>> describeVpcClassicLink(
+    final DescribeVpcClassicLinkRequest request
+  ) {
+    return Observable.defer(() -> {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<VpcClassicLink>> ref = new TypeReference<List<VpcClassicLink>>() {};
+    String url = config.url() + "/api/v2/aws/vpcClassicLinks;_expand";
+      return doGet(url).map(sr -> {
+        try {
+          List<VpcClassicLink> vpcs = parse(ref, sr.result);
+
+          List<String> ids = request.getVpcIds();
+          if (shouldFilter(ids)) {
+            List<VpcClassicLink> vs = new ArrayList<VpcClassicLink>();
+            for (VpcClassicLink v : vpcs) {
+              if (matches(ids, v.getVpcId()))
+                vs.add(v);
+            }
+            vpcs = vs;
+          }
+
+          return new ServiceResult<DescribeVpcClassicLinkResult>(
+            sr.startTime,
+            new DescribeVpcClassicLinkResult().withVpcs(vpcs)
+          );
+        }
+        catch (IOException e) {
+          throw new AmazonClientException("Faled to parse " + url, e);
+        }
+      });
+    });
+  }
 }
