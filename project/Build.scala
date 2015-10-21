@@ -37,7 +37,8 @@ object MainBuild extends Build {
       Dependencies.awsObjectMapper,
       Dependencies.iepConfig,
       Dependencies.iepNflxEnv,
-      Dependencies.iepRxHttp
+      Dependencies.iepRxHttp,
+      Dependencies.nettyHandler % "test"
     ))
 
   lazy val `edda-client-nflx-plugin` = project

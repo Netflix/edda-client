@@ -2,15 +2,16 @@ import sbt._
 
 object Dependencies {
   object Versions {
-    val scala     = "2.11.6"
+    val scala     = "2.11.7"
     val slf4j     = "1.7.10"
     val spectator = "0.30.0"
-    val iep       = "0.1.48"
-    val iepShadow = "0.1.26.8"
+    val iep       = "0.1.49"
+    val iepShadow = "0.1.49.9"
     val rxjava    = "1.0.14"
-    val rxnetty   = "0.4.10.8"
-    val rxAwsSdk  = "0.1.15"
-    val awsMapper = "1.10.16.0"
+    val rxnetty   = "0.4.12.9"
+    val rxAwsSdk  = "0.1.16"
+    val awsMapper = "1.10.27.0"
+    val netty = "4.1.0.Beta6"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
@@ -28,6 +29,7 @@ object Dependencies {
   val junit           = "junit" % "junit" % "4.10"
   val junitInterface  = "com.novocode" % "junit-interface" % "0.11"
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"
+  val nettyHandler    = "io.netty" % "netty-handler" % Versions.netty
   val rxAwsSdk        = "com.netflix.rx-aws-java-sdk" % "rx-aws-java-sdk" % Versions.rxAwsSdk
   val rxjava          = "io.reactivex" % "rxjava" % Versions.rxjava
   val rxnetty         = "com.netflix.iep-shadow" % "iepshadow-rxnetty" % Versions.rxnetty
