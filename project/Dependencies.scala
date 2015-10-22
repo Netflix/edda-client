@@ -6,12 +6,12 @@ object Dependencies {
     val slf4j     = "1.7.10"
     val spectator = "0.30.0"
     val iep       = "0.1.49"
-    val iepShadow = "0.1.49.9"
+    val iepShadow = "0.1.49.10"
     val rxjava    = "1.0.14"
-    val rxnetty   = "0.4.12.9"
+    val rxnetty   = "0.4.13.10"
     val rxAwsSdk  = "0.1.16"
     val awsMapper = "1.10.27.0"
-    val netty = "4.1.0.Beta6"
+    val netty     = "4.1.0.Beta7"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
