@@ -112,7 +112,9 @@ abstract public class EddaAwsRxNettyClient {
           byteBuf.readBytes(out, byteBuf.readableBytes());
 System.err.println(new String(out.toByteArray()));
           InputStream is = new java.io.ByteArrayInputStream(out.toByteArray());
-          return (T) JsonHelper.createParser(is).readValueAs(ref);
+          T t = (T) JsonHelper.createParser(is).readValueAs(ref);
+System.err.println("ok");
+          return t;
         }
         catch (Exception e) {
           throw new RuntimeException("failed to get url: " + uri, e);
