@@ -50,41 +50,35 @@ public class EddaRoute53RxNettyClient extends EddaAwsRxNettyClient {
     final ListHostedZonesRequest request
   ) {
     return Observable.defer(() -> {
-      TypeReference<List<HostedZone>> ref = new TypeReference<List<HostedZone>>() {};
+      TypeReference<HostedZone> ref = new TypeReference<HostedZone>() {};
       String url = config.url() + "/api/v2/aws/hostedZones;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<HostedZone> hostedZones = parse(ref, sr.result);
-          return new PaginatedServiceResult<ListHostedZonesResult>(
-            sr.startTime,
-            null,
-            new ListHostedZonesResult().withHostedZones(hostedZones)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<HostedZone> hostedZones = sr.result;
+
+        return new PaginatedServiceResult<ListHostedZonesResult>(
+          sr.startTime,
+          null,
+          new ListHostedZonesResult().withHostedZones(hostedZones)
+        );
       });
     });
   }
 
   public Observable<PaginatedServiceResult<ListResourceRecordSetsResult>> listResourceRecordSets() {
     return Observable.defer(() -> {
-      TypeReference<List<ResourceRecordSet>> ref = new TypeReference<List<ResourceRecordSet>>() {};
+      TypeReference<ResourceRecordSet> ref = new TypeReference<ResourceRecordSet>() {};
 
       String url = config.url() + "/api/v2/aws/hostedRecords;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<ResourceRecordSet> resourceRecordSets = parse(ref, sr.result);
-          return new PaginatedServiceResult<ListResourceRecordSetsResult>(
-            sr.startTime,
-            null,
-            new ListResourceRecordSetsResult().withResourceRecordSets(resourceRecordSets)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<ResourceRecordSet> resourceRecordSets = sr.result;
+
+        return new PaginatedServiceResult<ListResourceRecordSetsResult>(
+          sr.startTime,
+          null,
+          new ListResourceRecordSetsResult().withResourceRecordSets(resourceRecordSets)
+        );
       });
     });
   }
@@ -95,22 +89,19 @@ public class EddaRoute53RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
       validateNotEmpty("HostedZoneId", request.getHostedZoneId());
 
-      TypeReference<List<ResourceRecordSet>> ref = new TypeReference<List<ResourceRecordSet>>() {};
+      TypeReference<ResourceRecordSet> ref = new TypeReference<ResourceRecordSet>() {};
       String hostedZoneId = request.getHostedZoneId();
 
       String url = config.url() + "/api/v2/aws/hostedRecords;_expand;zone.id=" + hostedZoneId;
-      return doGet(url).map(sr -> {
-        try {
-          List<ResourceRecordSet> resourceRecordSets = parse(ref, sr.result);
-          return new PaginatedServiceResult<ListResourceRecordSetsResult>(
-            sr.startTime,
-            null,
-            new ListResourceRecordSetsResult().withResourceRecordSets(resourceRecordSets)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<ResourceRecordSet> resourceRecordSets = sr.result;
+
+        return new PaginatedServiceResult<ListResourceRecordSetsResult>(
+          sr.startTime,
+          null,
+          new ListResourceRecordSetsResult().withResourceRecordSets(resourceRecordSets)
+        );
       });
     });
   }

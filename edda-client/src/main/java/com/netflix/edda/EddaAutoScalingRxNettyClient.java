@@ -51,31 +51,27 @@ public class EddaAutoScalingRxNettyClient extends EddaAwsRxNettyClient {
     final DescribeAutoScalingGroupsRequest request
   ) {
     return Observable.defer(() -> {
-      TypeReference<List<AutoScalingGroup>> ref = new TypeReference<List<AutoScalingGroup>>() {};
+      TypeReference<AutoScalingGroup> ref = new TypeReference<AutoScalingGroup>() {};
       String url = config.url() + "/api/v2/aws/autoScalingGroups;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<AutoScalingGroup> autoScalingGroups = parse(ref, sr.result);
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<AutoScalingGroup> autoScalingGroups = sr.result;
 
-          List<String> names = request.getAutoScalingGroupNames();
-          if (shouldFilter(names)) {
-            List<AutoScalingGroup> asgs = new ArrayList<AutoScalingGroup>();
-            for (AutoScalingGroup asg : autoScalingGroups) {
-              if (matches(names, asg.getAutoScalingGroupName()))
-                asgs.add(asg);
-            }
-            autoScalingGroups = asgs;
+        List<String> names = request.getAutoScalingGroupNames();
+        if (shouldFilter(names)) {
+          List<AutoScalingGroup> asgs = new ArrayList<AutoScalingGroup>();
+          for (AutoScalingGroup asg : autoScalingGroups) {
+            if (matches(names, asg.getAutoScalingGroupName()))
+              asgs.add(asg);
           }
+          autoScalingGroups = asgs;
+        }
 
-          return new PaginatedServiceResult<DescribeAutoScalingGroupsResult>(
-            sr.startTime,
-            null,
-            new DescribeAutoScalingGroupsResult().withAutoScalingGroups(autoScalingGroups)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeAutoScalingGroupsResult>(
+          sr.startTime,
+          null,
+          new DescribeAutoScalingGroupsResult().withAutoScalingGroups(autoScalingGroups)
+        );
       });
     });
   }
@@ -88,31 +84,27 @@ public class EddaAutoScalingRxNettyClient extends EddaAwsRxNettyClient {
     final DescribeLaunchConfigurationsRequest request
   ) {
     return Observable.defer(() -> {
-      TypeReference<List<LaunchConfiguration>> ref = new TypeReference<List<LaunchConfiguration>>() {};
+      TypeReference<LaunchConfiguration> ref = new TypeReference<LaunchConfiguration>() {};
       String url = config.url() + "/api/v2/aws/launchConfigurations;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<LaunchConfiguration> launchConfigurations = parse(ref, sr.result);
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<LaunchConfiguration> launchConfigurations = sr.result;
 
-          List<String> names = request.getLaunchConfigurationNames();
-          if (shouldFilter(names)) {
-            List<LaunchConfiguration> lcs = new ArrayList<LaunchConfiguration>();
-            for (LaunchConfiguration lc : launchConfigurations) {
-              if (matches(names, lc.getLaunchConfigurationName()))
-                lcs.add(lc);
-            }
-            launchConfigurations = lcs;
+        List<String> names = request.getLaunchConfigurationNames();
+        if (shouldFilter(names)) {
+          List<LaunchConfiguration> lcs = new ArrayList<LaunchConfiguration>();
+          for (LaunchConfiguration lc : launchConfigurations) {
+            if (matches(names, lc.getLaunchConfigurationName()))
+              lcs.add(lc);
           }
+          launchConfigurations = lcs;
+        }
 
-          return new PaginatedServiceResult<DescribeLaunchConfigurationsResult>(
-            sr.startTime,
-            null,
-            new DescribeLaunchConfigurationsResult().withLaunchConfigurations(launchConfigurations)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeLaunchConfigurationsResult>(
+          sr.startTime,
+          null,
+          new DescribeLaunchConfigurationsResult().withLaunchConfigurations(launchConfigurations)
+        );
       });
     });
   }
@@ -125,32 +117,28 @@ public class EddaAutoScalingRxNettyClient extends EddaAwsRxNettyClient {
     final DescribePoliciesRequest request
   ) {
     return Observable.defer(() -> {
-      TypeReference<List<ScalingPolicy>> ref = new TypeReference<List<ScalingPolicy>>() {};
+      TypeReference<ScalingPolicy> ref = new TypeReference<ScalingPolicy>() {};
       String url = config.url() + "/api/v2/aws/scalingPolicies;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<ScalingPolicy> scalingPolicies = parse(ref, sr.result);
+      return doGetList(ref, url)
+      .map(sr -> {
+        List<ScalingPolicy> scalingPolicies = sr.result;
 
-          String asg = request.getAutoScalingGroupName();
-          List<String> names = request.getPolicyNames();
-          if (shouldFilter(asg) || shouldFilter(names)) {
-            List<ScalingPolicy> sps = new ArrayList<ScalingPolicy>();
-            for (ScalingPolicy sp : scalingPolicies) {
-              if (matches(asg, sp.getAutoScalingGroupName()) && matches(names, sp.getPolicyName()))
-                sps.add(sp);
-            }
-            scalingPolicies = sps;
+        String asg = request.getAutoScalingGroupName();
+        List<String> names = request.getPolicyNames();
+        if (shouldFilter(asg) || shouldFilter(names)) {
+          List<ScalingPolicy> sps = new ArrayList<ScalingPolicy>();
+          for (ScalingPolicy sp : scalingPolicies) {
+            if (matches(asg, sp.getAutoScalingGroupName()) && matches(names, sp.getPolicyName()))
+              sps.add(sp);
           }
+          scalingPolicies = sps;
+        }
 
-          return new PaginatedServiceResult<DescribePoliciesResult>(
-            sr.startTime,
-            null,
-            new DescribePoliciesResult().withScalingPolicies(scalingPolicies)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribePoliciesResult>(
+          sr.startTime,
+          null,
+          new DescribePoliciesResult().withScalingPolicies(scalingPolicies)
+        );
       });
     });
   }

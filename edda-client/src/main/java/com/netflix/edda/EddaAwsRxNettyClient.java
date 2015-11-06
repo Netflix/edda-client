@@ -15,18 +15,21 @@
  */
 package com.netflix.edda;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+
 import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
+
+import iep.com.netflix.iep.http.ByteBufs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -56,43 +59,71 @@ abstract public class EddaAwsRxNettyClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  protected Observable<ServiceResult<byte[]>> doGet(final String uri) {
-    try {
-      return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
-      .flatMap(response -> {
-        if (response.getStatus().code() != 200) {
-          AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
-          e.setStatusCode(response.getStatus().code());
-          e.setErrorCode("Edda");
-          e.setRequestId(uri);
-          return rx.Observable.error(e);
+  protected <T> Observable<ServiceResult<T>> doGet(
+    final TypeReference<T> ref,
+    final String uri
+  ) {
+    return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
+    .flatMap(response -> {
+      if (response.getStatus().code() != 200) {
+        AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+        e.setStatusCode(response.getStatus().code());
+        e.setErrorCode("Edda");
+        e.setRequestId(uri);
+        return rx.Observable.error(e);
+      }
+      return response.getContent()
+      .compose(ByteBufs.json()).map(byteBuf -> {
+        try {
+          InputStream is = new ByteBufInputStream(byteBuf);
+          T t = JsonHelper.createParser(is).readValueAs(ref);
+          try { is.close(); } catch (IOException e) {}
+          return t;
         }
-        return response.getContent()
-        .reduce(
-          new ByteArrayOutputStream(),
-          (out, bb) -> {
-              try { bb.readBytes(out, bb.readableBytes()); }
-              catch (IOException e) { throw new RuntimeException(e); }
-              return out;
-          }
-        )
-        .map(out -> {
-          return new ServiceResult<byte[]>(0, out.toByteArray());
-        });
+        catch (Exception e) {
+          throw new RuntimeException("failed to get url: " + uri, e);
+        }
       })
-      .timeout(2, TimeUnit.MINUTES);
-    }
-    catch (Exception e) {
-      throw new RuntimeException("failed to get url: " + uri, e);
-    }
+      .map(t -> {
+        return new ServiceResult<T>(0, t);
+      });
+    });
+  }
+
+  protected <T> Observable<ServiceResult<List<T>>> doGetList(
+    final TypeReference<T> ref,
+    final String uri
+  ) {
+    return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
+    .flatMap(response -> {
+      if (response.getStatus().code() != 200) {
+        AmazonServiceException e = new AmazonServiceException("Failed to fetch " + uri);
+        e.setStatusCode(response.getStatus().code());
+        e.setErrorCode("Edda");
+        e.setRequestId(uri);
+        return rx.Observable.error(e);
+      }
+      return response.getContent()
+      .compose(ByteBufs.json()).map(byteBuf -> {
+        try {
+          InputStream is = new ByteBufInputStream(byteBuf);
+          T t = JsonHelper.createParser(is).readValueAs(ref);
+          try { is.close(); } catch (IOException e) {}
+          return t;
+        }
+        catch (Exception e) {
+          throw new RuntimeException("failed to get url: " + uri, e);
+        }
+      })
+      .toList()
+      .map(ts -> {
+        return new ServiceResult<List<T>>(0, ts);
+      });
+    });
   }
 
   protected String mkUrl(String url) {
     return url.replaceAll("\\$\\{vip\\}", vip).replaceAll("\\$\\{region\\}", region);
-  }
-
-  protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
-      return JsonHelper.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
   }
 
   protected void validateEmpty(String name, String s) {
