@@ -110,6 +110,7 @@ abstract public class EddaAwsRxNettyClient {
           //ByteBufInputStream is = new ByteBufInputStream(byteBuf);
           java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
           byteBuf.readBytes(out, byteBuf.readableBytes());
+System.err.println(new String(out.toByteArray()));
           InputStream is = new java.io.ByteArrayInputStream(out.toByteArray());
           return (T) JsonHelper.createParser(is).readValueAs(ref);
         }
