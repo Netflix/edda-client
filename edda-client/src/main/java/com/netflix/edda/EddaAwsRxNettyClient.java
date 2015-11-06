@@ -74,14 +74,15 @@ abstract public class EddaAwsRxNettyClient {
       }
       return response.getContent()
       .compose(ByteBufs.json()).map(byteBuf -> {
+        InputStream is = new ByteBufInputStream(byteBuf);
         try {
-          InputStream is = new ByteBufInputStream(byteBuf);
-          T t = JsonHelper.createParser(is).readValueAs(ref);
-          try { is.close(); } catch (IOException e) {}
-          return t;
+          return (T) JsonHelper.createParser(is).readValueAs(ref);
         }
         catch (Exception e) {
           throw new RuntimeException("failed to get url: " + uri, e);
+        }
+        finally {
+          if (is != null) try { is.close(); } catch (IOException e) {}
         }
       })
       .map(t -> {
@@ -105,14 +106,15 @@ abstract public class EddaAwsRxNettyClient {
       }
       return response.getContent()
       .compose(ByteBufs.json()).map(byteBuf -> {
+        InputStream is = new ByteBufInputStream(byteBuf);
         try {
-          InputStream is = new ByteBufInputStream(byteBuf);
-          T t = JsonHelper.createParser(is).readValueAs(ref);
-          try { is.close(); } catch (IOException e) {}
-          return t;
+          return (T) JsonHelper.createParser(is).readValueAs(ref);
         }
         catch (Exception e) {
           throw new RuntimeException("failed to get url: " + uri, e);
+        }
+        finally {
+          if (is != null) try { is.close(); } catch (IOException e) {}
         }
       })
       .toList()
