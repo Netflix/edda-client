@@ -106,13 +106,15 @@ abstract public class EddaAwsRxNettyClient {
       }
       return response.getContent()
       .compose(ByteBufs.json()).map(byteBuf -> {
-        ByteBufInputStream is = new ByteBufInputStream(byteBuf);
         try {
+          //ByteBufInputStream is = new ByteBufInputStream(byteBuf);
+          java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+          byteBuf.readBytes(out, byteBuf.readableBytes());
+          InputStream is = new java.io.ByteArrayInputStream(out.toByteArray());
           return (T) JsonHelper.createParser(is).readValueAs(ref);
         }
         catch (Exception e) {
-          String line = "readable bytes: " + byteBuf.readableBytes() + "; is: " + is;
-          throw new RuntimeException("failed to get url: " + uri + " [" + line + "]", e);
+          throw new RuntimeException("failed to get url: " + uri, e);
         }
         //finally {
           //if (is != null) try { is.close(); } catch (IOException e) {}
