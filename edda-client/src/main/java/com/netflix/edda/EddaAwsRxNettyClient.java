@@ -81,9 +81,9 @@ abstract public class EddaAwsRxNettyClient {
         catch (Exception e) {
           throw new RuntimeException("failed to get url: " + uri, e);
         }
-        finally {
-          if (is != null) try { is.close(); } catch (IOException e) {}
-        }
+        //finally {
+          //if (is != null) try { is.close(); } catch (IOException e) {}
+        //}
       })
       .map(t -> {
         return new ServiceResult<T>(0, t);
@@ -111,14 +111,12 @@ abstract public class EddaAwsRxNettyClient {
           return (T) JsonHelper.createParser(is).readValueAs(ref);
         }
         catch (Exception e) {
-          String line = null;
-          try { if (is != null) line = is.readLine(); }
-          catch (IOException e1) {}
+          String line = "readable bytes: " + byteBuf.readableBytes() + "; is: " + is;
           throw new RuntimeException("failed to get url: " + uri + " [" + line + "]", e);
         }
-        finally {
-          if (is != null) try { is.close(); } catch (IOException e) {}
-        }
+        //finally {
+          //if (is != null) try { is.close(); } catch (IOException e) {}
+        //}
       })
       .toList()
       .map(ts -> {
