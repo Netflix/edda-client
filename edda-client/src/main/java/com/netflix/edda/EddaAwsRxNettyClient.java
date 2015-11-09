@@ -29,7 +29,7 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
-import iep.com.netflix.iep.http.ByteBufs;
+import com.netflix.iep.http.ByteBufs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -73,7 +73,7 @@ abstract public class EddaAwsRxNettyClient {
         return rx.Observable.error(e);
       }
       return response.getContent()
-      .compose(ByteBufs.json()).map(byteBuf -> {
+      .compose(ByteBufs.modifiedJson()).map(byteBuf -> {
         InputStream is = new ByteBufInputStream(byteBuf);
         try {
           return (T) JsonHelper.createParser(is).readValueAs(ref);
@@ -104,16 +104,22 @@ abstract public class EddaAwsRxNettyClient {
         e.setRequestId(uri);
         return rx.Observable.error(e);
       }
+final java.util.concurrent.atomic.AtomicInteger i = new java.util.concurrent.atomic.AtomicInteger(0);
       return response.getContent()
-      .compose(ByteBufs.json()).map(byteBuf -> {
+      .compose(ByteBufs.modifiedJson()).map(byteBuf -> {
         try {
           //ByteBufInputStream is = new ByteBufInputStream(byteBuf);
           java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
           byteBuf.readBytes(out, byteBuf.readableBytes());
+String s = Thread.currentThread().getName() + " [" + i.getAndIncrement() + "]";
+System.err.println("<- " + s + " -----");
 System.err.println(new String(out.toByteArray()));
+System.err.println("<- " + s + " ->");
+Thread.sleep(100);
           InputStream is = new java.io.ByteArrayInputStream(out.toByteArray());
           T t = (T) JsonHelper.createParser(is).readValueAs(ref);
 System.err.println("ok");
+System.err.println("-- " + s + " ---->");
           return t;
         }
         catch (Exception e) {
