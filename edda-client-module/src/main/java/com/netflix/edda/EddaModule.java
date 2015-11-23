@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netflix.edda.nflx;
+package com.netflix.edda;
 
 import com.google.inject.AbstractModule;
 
-import com.netflix.edda.EddaContext;
+public final class EddaModule extends AbstractModule {
 
-public class EddaModule extends AbstractModule {
   @Override protected void configure() {
     bind(EddaContext.class).asEagerSingleton();
+  }
+
+  @Override public boolean equals(Object obj) {
+    return obj != null && getClass().equals(obj.getClass());
+  }
+
+  @Override public int hashCode() {
+    return getClass().hashCode();
   }
 }

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.config.ConfigurationManager;
 
-import iep.com.netflix.iep.http.RxHttp;
+import com.netflix.iep.http.RxHttp;
 
 @Singleton
 public class EddaContext {

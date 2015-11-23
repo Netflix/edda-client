@@ -24,9 +24,9 @@ import org.junit.AfterClass;
 import org.junit.Test;
 
 import io.netty.buffer.ByteBuf;
-import iep.io.reactivex.netty.RxNetty;
-import iep.io.reactivex.netty.protocol.http.server.HttpServer;
-import iep.io.reactivex.netty.protocol.http.server.file.ClassPathFileRequestHandler;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.server.HttpServer;
+import io.reactivex.netty.protocol.http.server.file.ClassPathFileRequestHandler;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
@@ -38,7 +38,7 @@ import com.netflix.archaius.PropertyFactory;
 import com.netflix.iep.config.Configuration;
 import com.netflix.iep.config.DynamicPropertiesConfiguration;
 import com.netflix.iep.config.TestResourceConfiguration;
-import iep.com.netflix.iep.http.RxHttp;
+import com.netflix.iep.http.RxHttp;
 
 public class Ec2ClientTests {
   private static HttpServer<ByteBuf, ByteBuf> server;
