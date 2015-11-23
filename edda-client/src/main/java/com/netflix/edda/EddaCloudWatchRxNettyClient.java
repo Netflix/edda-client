@@ -54,28 +54,32 @@ public class EddaCloudWatchRxNettyClient extends EddaAwsRxNettyClient {
       validateEmpty("ActionPrefix", request.getActionPrefix());
       validateEmpty("AlarmNamePrefix", request.getAlarmNamePrefix());
 
-      TypeReference<MetricAlarm> ref = new TypeReference<MetricAlarm>() {};
+      TypeReference<List<MetricAlarm>> ref = new TypeReference<List<MetricAlarm>>() {};
       String url = config.url() + "/api/v2/aws/alarms;_expand";
-      return doGetList(ref, url)
-      .map(sr -> {
-        List<MetricAlarm> metricAlarms = sr.result;
+      return doGet(url).map(sr -> {
+        try {
+          List<MetricAlarm> metricAlarms = parse(ref, sr.result);
 
-        List<String> names = request.getAlarmNames();
-        String state = request.getStateValue();
-        if (shouldFilter(names) || shouldFilter(state)) {
-          List<MetricAlarm> mas = new ArrayList<MetricAlarm>();
-          for (MetricAlarm ma : metricAlarms) {
-            if (matches(names, ma.getAlarmName()) && matches(state, ma.getStateValue()))
-              mas.add(ma);
+          List<String> names = request.getAlarmNames();
+          String state = request.getStateValue();
+          if (shouldFilter(names) || shouldFilter(state)) {
+            List<MetricAlarm> mas = new ArrayList<MetricAlarm>();
+            for (MetricAlarm ma : metricAlarms) {
+              if (matches(names, ma.getAlarmName()) && matches(state, ma.getStateValue()))
+                mas.add(ma);
+            }
+            metricAlarms = mas;
           }
-          metricAlarms = mas;
-        }
 
-        return new PaginatedServiceResult<DescribeAlarmsResult>(
-          sr.startTime,
-          null,
-          new DescribeAlarmsResult().withMetricAlarms(metricAlarms)
-        );
+          return new PaginatedServiceResult<DescribeAlarmsResult>(
+            sr.startTime,
+            null,
+            new DescribeAlarmsResult().withMetricAlarms(metricAlarms)
+          );
+        }
+        catch (IOException e) {
+          throw new AmazonClientException("Faled to parse " + url, e);
+        }
       });
     });
   }
