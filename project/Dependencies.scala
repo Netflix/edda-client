@@ -4,14 +4,14 @@ object Dependencies {
   object Versions {
     val scala     = "2.11.7"
     val slf4j     = "1.7.10"
-    val spectator = "0.30.0"
-    val iep       = "0.1.49"
-    val iepShadow = "0.1.49.10"
-    val rxjava    = "1.0.14"
-    val rxnetty   = "0.4.13.10"
-    val rxAwsSdk  = "0.1.16"
+    val spectator = "0.33.0"
+    val iep       = "0.3.0"
+    val iepShadow = "0.3.0.11-SNAPSHOT"
+    val rxjava    = "1.0.16"
+    val rxnetty   = "0.4.13.11-SNAPSHOT"
+    val rxAwsSdk  = "0.1.17"
     val awsMapper = "1.10.27.0"
-    val netty     = "4.1.0.Beta7"
+    val netty     = "4.1.0.Beta8"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
