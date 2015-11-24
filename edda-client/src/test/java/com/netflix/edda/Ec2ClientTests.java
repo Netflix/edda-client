@@ -60,7 +60,6 @@ public class Ec2ClientTests {
     PropertyFactory factory = new DefaultPropertyFactory(cfg);
     config = new DynamicPropertiesConfiguration(factory);
     config.init();
-    eddaContext.init();
   }
 
   @AfterClass
