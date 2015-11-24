@@ -39,7 +39,6 @@ public class EddaModuleTest {
       new EurekaModule()
     );
     Assert.assertNotNull(injector.getInstance(RxHttp.class));
-    injector.getInstance(EddaContext.class).init();
     Assert.assertNotNull(EddaContext.getContext().getRxHttp());
   }
 }
