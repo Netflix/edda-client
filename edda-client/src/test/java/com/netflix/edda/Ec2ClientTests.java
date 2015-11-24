@@ -64,7 +64,6 @@ public class Ec2ClientTests {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    eddaContext.destroy();
     config.destroy();
   }
 
