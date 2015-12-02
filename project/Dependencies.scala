@@ -6,10 +6,9 @@ object Dependencies {
     val slf4j     = "1.7.10"
     val spectator = "0.33.0"
     val iep       = "0.3.0"
-    //val iepShadow = "0.3.0.11-SNAPSHOT"
     val rxjava    = "1.0.16"
     val rxnetty   = "0.4.13"
-    val rxAwsSdk  = "0.1.17"
+    val rxAwsSdk  = "0.1.18"
     val awsMapper = "1.10.27.0"
     val netty     = "4.1.0.Beta8"
   }
