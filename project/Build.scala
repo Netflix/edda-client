@@ -45,9 +45,9 @@ object MainBuild extends Build {
     .settings(buildSettings: _*)
     .settings(libraryDependencies ++= commonDeps)
     .settings(libraryDependencies ++= Seq(
+      Dependencies.iepModRxNetty,
       Dependencies.spectatorNflx,
       Dependencies.iepModEureka % "test",
-      Dependencies.iepModRxNetty % "test",
       Dependencies.iepEurekaCfg % "test",
       Dependencies.spectatorNflx % "test"
     ))
