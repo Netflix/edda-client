@@ -18,7 +18,7 @@ package com.netflix.edda;
 import com.google.inject.AbstractModule;
 import com.netflix.governator.annotations.AutoBindSingleton;
 import com.netflix.spectator.nflx.SpectatorModule;
-import com.netflix.iep.rxnetty.RxNettyModule;
+import iep.com.netflix.iep.rxnetty.RxNettyModule;
 
 @AutoBindSingleton
 public final class EddaModule extends AbstractModule {
