@@ -15,7 +15,6 @@
  */
 package com.netflix.edda;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -49,21 +48,16 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
 
   public Observable<NamedServiceResult<DescribeInstanceHealthResult>> describeInstanceHealth() {
     return Observable.defer(() -> {
-      TypeReference<List<InstanceStateView>> ref = new TypeReference<List<InstanceStateView>>() {};
+      TypeReference<InstanceStateView> ref = new TypeReference<InstanceStateView>() {};
       String url = config.url() + "/api/v2/view/loadBalancerInstances;_expand";
-      return doGet(url).flatMap(sr -> {
-        try {
-          return Observable.from(parse(ref, sr.result)).map(view -> {
+      return doGet(ref, url).flatMap(vs -> {
+          return Observable.from(vs).map(view -> {
             return new NamedServiceResult<DescribeInstanceHealthResult>(
-              sr.startTime,
+              0,
               view.getName(),
               new DescribeInstanceHealthResult().withInstanceStates(view.getInstances())
             );
           });
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
       });
     });
   }
@@ -78,9 +72,8 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
       String loadBalancerName = request.getLoadBalancerName();
     
       String url = config.url() + "/api/v2/view/loadBalancerInstances/"+loadBalancerName+";_expand";
-      return doGet(url).map(sr -> {
-        try {
-          InstanceStateView view = parse(ref, sr.result);
+      return doGet(ref, url).flatMap(vs -> {
+        return Observable.from(vs).map(view -> {
           List<InstanceState> instanceStates = view.getInstances();
 
           List<Instance> instances = request.getInstances();
@@ -99,13 +92,10 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
           }
 
           return new ServiceResult<DescribeInstanceHealthResult>(
-            sr.startTime,
-            new DescribeInstanceHealthResult().withInstanceStates(view.getInstances())
+            0,
+            new DescribeInstanceHealthResult().withInstanceStates(instanceStates)
           );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        });
       });
     });
   }
@@ -118,12 +108,9 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
     final DescribeLoadBalancersRequest request
   ) {
     return Observable.defer(() -> {
-      TypeReference<List<LoadBalancerDescription>> ref = new TypeReference<List<LoadBalancerDescription>>() {};
+      TypeReference<LoadBalancerDescription> ref = new TypeReference<LoadBalancerDescription>() {};
       String url = config.url() + "/api/v2/aws/loadBalancers;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<LoadBalancerDescription> loadBalancerDescriptions = parse(ref, sr.result);
-
+      return doGet(ref, url).map(loadBalancerDescriptions -> {
           List<String> names = request.getLoadBalancerNames();
           if (shouldFilter(names)) {
             List<LoadBalancerDescription> lbs = new ArrayList<LoadBalancerDescription>();
@@ -135,35 +122,26 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
           }
 
           return new PaginatedServiceResult<DescribeLoadBalancersResult>(
-            sr.startTime,
+            0,
             null,
             new DescribeLoadBalancersResult().withLoadBalancerDescriptions(loadBalancerDescriptions)
           );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
       });
     });
   }
 
   public Observable<NamedServiceResult<DescribeLoadBalancerAttributesResult>> describeLoadBalancerAttributes() {
     return Observable.defer(() -> {
-      TypeReference<List<LoadBalancerAttributesView>> ref = new TypeReference<List<LoadBalancerAttributesView>>() {};
+      TypeReference<LoadBalancerAttributesView> ref = new TypeReference<LoadBalancerAttributesView>() {};
       String url = config.url() + "/api/v2/view/loadBalancerAttributes;_expand";
-      return doGet(url).flatMap(sr -> {
-        try {
-          return Observable.from(parse(ref, sr.result)).map(view -> {
+      return doGet(ref, url).flatMap(vs -> {
+          return Observable.from(vs).map(view -> {
             return new NamedServiceResult<DescribeLoadBalancerAttributesResult>(
-              sr.startTime,
+              0,
               view.getName(),
               new DescribeLoadBalancerAttributesResult().withLoadBalancerAttributes(view.getAttributes())
             );
           });
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
       });
     });
   }
@@ -176,17 +154,13 @@ public class EddaElasticLoadBalancingRxNettyClient extends EddaAwsRxNettyClient 
       TypeReference<LoadBalancerAttributesView> ref = new TypeReference<LoadBalancerAttributesView>() {};
       String loadBalancerName = request.getLoadBalancerName();
       String url = config.url() + "/api/v2/view/loadBalancerAttributes/"+loadBalancerName+";_expand";
-      return doGet(url).map(sr -> {
-        try {
-          LoadBalancerAttributesView view = parse(ref, sr.result);
+      return doGet(ref, url).flatMap(vs -> {
+        return Observable.from(vs).map(view -> {
           return new ServiceResult<DescribeLoadBalancerAttributesResult>(
-            sr.startTime,
+            0,
             new DescribeLoadBalancerAttributesResult().withLoadBalancerAttributes(view.getAttributes())
           );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        });
       });
     });
   }

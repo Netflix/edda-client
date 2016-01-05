@@ -53,33 +53,26 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
       validateEmpty("Filter", request.getFilters());
 
-      TypeReference<List<ClassicLinkInstance>> ref = new TypeReference<List<ClassicLinkInstance>>(){
+      TypeReference<ClassicLinkInstance> ref = new TypeReference<ClassicLinkInstance>(){
       };
 
       String url = config.url() + "/api/v2/aws/classicLinkInstances;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<ClassicLinkInstance> instances = parse(ref, sr.result);
-
-          List<String> ids = request.getInstanceIds();
-          if (shouldFilter(ids)) {
-            List<ClassicLinkInstance> is = new ArrayList<ClassicLinkInstance>();
-            for (ClassicLinkInstance i : instances) {
-              if (matches(ids, i.getInstanceId()))
-                is.add(i);
-            }
-            instances = is;
+      return doGet(ref, url).map(instances -> {
+        List<String> ids = request.getInstanceIds();
+        if (shouldFilter(ids)) {
+          List<ClassicLinkInstance> is = new ArrayList<ClassicLinkInstance>();
+          for (ClassicLinkInstance i : instances) {
+            if (matches(ids, i.getInstanceId()))
+              is.add(i);
           }
+          instances = is;
+        }
 
-          return new PaginatedServiceResult<DescribeClassicLinkInstancesResult>(
-            sr.startTime,
-            null,
-            new DescribeClassicLinkInstancesResult().withInstances(instances)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeClassicLinkInstancesResult>(
+          0, //sr.startTime,
+          null,
+          new DescribeClassicLinkInstancesResult().withInstances(instances)
+        );
       });
     });
   }
@@ -111,31 +104,24 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
         }
       }
 
-      TypeReference<List<Image>> ref = new TypeReference<List<Image>>() {};
+      TypeReference<Image> ref = new TypeReference<Image>() {};
       String url = config.url() + "/api/v2/" + path + ";_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<Image> images = parse(ref, sr.result);
-
-          List<String> owners = request.getOwners();
-          List<String> ids = request.getImageIds();
-          if (shouldFilter(owners) || shouldFilter(ids)) {
-            List<Image> is = new ArrayList<Image>();
-            for (Image i : images) {
-              if (matches(owners, i.getOwnerId()) && matches(ids, i.getImageId()))
-                is.add(i);
-            }
-            images = is;
+      return doGet(ref, url).map(images -> {
+        List<String> owners = request.getOwners();
+        List<String> ids = request.getImageIds();
+        if (shouldFilter(owners) || shouldFilter(ids)) {
+          List<Image> is = new ArrayList<Image>();
+          for (Image i : images) {
+            if (matches(owners, i.getOwnerId()) && matches(ids, i.getImageId()))
+              is.add(i);
           }
+          images = is;
+        }
 
-          return new ServiceResult<DescribeImagesResult>(
-            sr.startTime,
-            new DescribeImagesResult().withImages(images)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new ServiceResult<DescribeImagesResult>(
+          0, //sr.startTime,
+          new DescribeImagesResult().withImages(images)
+        );
       });
     });
   }
@@ -150,35 +136,28 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
       validateEmpty("Filter", request.getFilters());
 
-      TypeReference<List<Reservation>> ref = new TypeReference<List<Reservation>>() {};
+      TypeReference<Reservation> ref = new TypeReference<Reservation>() {};
       String url = config.url() + "/api/v2/aws/instances;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<Reservation> reservations = parse(ref, sr.result);
-
-          List<String> ids = request.getInstanceIds();
-          if (shouldFilter(ids)) {
-            List<Reservation> rs = new ArrayList<Reservation>();
-            for (Reservation r : reservations) {
-              List<Instance> is = new ArrayList<Instance>();
-              for (Instance i : r.getInstances()) {
-                if (matches(ids, i.getInstanceId()))
-                  is.add(i);
-              }
-              if (is.size() > 0)
-                rs.add(r.withInstances(is));
+      return doGet(ref, url).map(reservations -> {
+        List<String> ids = request.getInstanceIds();
+        if (shouldFilter(ids)) {
+          List<Reservation> rs = new ArrayList<Reservation>();
+          for (Reservation r : reservations) {
+            List<Instance> is = new ArrayList<Instance>();
+            for (Instance i : r.getInstances()) {
+              if (matches(ids, i.getInstanceId()))
+                is.add(i);
             }
-            reservations = rs;
+            if (is.size() > 0)
+              rs.add(r.withInstances(is));
           }
-          return new PaginatedServiceResult<DescribeInstancesResult>(
-            sr.startTime,
-            null,
-            new DescribeInstancesResult().withReservations(reservations)
-          );
+          reservations = rs;
         }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeInstancesResult>(
+          0, //sr.startTime,
+          null,
+          new DescribeInstancesResult().withReservations(reservations)
+        );
       });
     });
   }
@@ -199,30 +178,23 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
       validateEmpty("OfferingType", request.getOfferingType());
       validateEmpty("ProductDescription", request.getProductDescription());
 
-      TypeReference<List<ReservedInstancesOffering>> ref = new TypeReference<List<ReservedInstancesOffering>>() {};
+      TypeReference<ReservedInstancesOffering> ref = new TypeReference<ReservedInstancesOffering>() {};
       String url = config.url() + "/api/v2/aws/reservedInstancesOfferings;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<ReservedInstancesOffering> reservedInstancesOfferings = parse(ref, sr.result);
-
-          List<String> ids = request.getReservedInstancesOfferingIds();
-          if (shouldFilter(ids)) {
-            List<ReservedInstancesOffering> rs = new ArrayList<ReservedInstancesOffering>();
-            for (ReservedInstancesOffering r : reservedInstancesOfferings) {
-              if (matches(ids, r.getReservedInstancesOfferingId()))
-                rs.add(r);
-            }
-            reservedInstancesOfferings = rs;
+      return doGet(ref, url).map(reservedInstancesOfferings -> {
+        List<String> ids = request.getReservedInstancesOfferingIds();
+        if (shouldFilter(ids)) {
+          List<ReservedInstancesOffering> rs = new ArrayList<ReservedInstancesOffering>();
+          for (ReservedInstancesOffering r : reservedInstancesOfferings) {
+            if (matches(ids, r.getReservedInstancesOfferingId()))
+              rs.add(r);
           }
-          return new PaginatedServiceResult<DescribeReservedInstancesOfferingsResult>(
-            sr.startTime,
-            null,
-            new DescribeReservedInstancesOfferingsResult().withReservedInstancesOfferings(reservedInstancesOfferings)
-          );
+          reservedInstancesOfferings = rs;
         }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeReservedInstancesOfferingsResult>(
+          0, //sr.startTime,
+          null,
+          new DescribeReservedInstancesOfferingsResult().withReservedInstancesOfferings(reservedInstancesOfferings)
+        );
       });
     });
   }
@@ -237,31 +209,24 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
       validateEmpty("Filter", request.getFilters());
 
-      TypeReference<List<SecurityGroup>> ref = new TypeReference<List<SecurityGroup>>() {};
+      TypeReference<SecurityGroup> ref = new TypeReference<SecurityGroup>() {};
       String url = config.url() + "/api/v2/aws/securityGroups;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<SecurityGroup> securityGroups = parse(ref, sr.result);
-
-          List<String> names = request.getGroupNames();
-          List<String> ids = request.getGroupIds();
-          if (shouldFilter(names) || shouldFilter(ids)) {
-            List<SecurityGroup> sgs = new ArrayList<SecurityGroup>();
-            for (SecurityGroup sg : securityGroups) {
-              if (matches(names, sg.getGroupName()) && matches(ids, sg.getGroupId()))
-                sgs.add(sg);
-            }
-            securityGroups = sgs;
+      return doGet(ref, url).map(securityGroups -> {
+        List<String> names = request.getGroupNames();
+        List<String> ids = request.getGroupIds();
+        if (shouldFilter(names) || shouldFilter(ids)) {
+          List<SecurityGroup> sgs = new ArrayList<SecurityGroup>();
+          for (SecurityGroup sg : securityGroups) {
+            if (matches(names, sg.getGroupName()) && matches(ids, sg.getGroupId()))
+              sgs.add(sg);
           }
+          securityGroups = sgs;
+        }
 
-          return new ServiceResult<DescribeSecurityGroupsResult>(
-            sr.startTime,
-            new DescribeSecurityGroupsResult().withSecurityGroups(securityGroups)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new ServiceResult<DescribeSecurityGroupsResult>(
+          0, //sr.startTime,
+          new DescribeSecurityGroupsResult().withSecurityGroups(securityGroups)
+        );
       });
     });
   }
@@ -276,30 +241,23 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
     validateEmpty("Filter", request.getFilters());
 
-    TypeReference<List<Subnet>> ref = new TypeReference<List<Subnet>>() {};
+    TypeReference<Subnet> ref = new TypeReference<Subnet>() {};
     String url = config.url() + "/api/v2/aws/subnets;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<Subnet> subnets = parse(ref, sr.result);
-
-          List<String> ids = request.getSubnetIds();
-          if (shouldFilter(ids)) {
-            List<Subnet> ss = new ArrayList<Subnet>();
-            for (Subnet s : subnets) {
-              if (matches(ids, s.getSubnetId()))
-                ss.add(s);
-            }
-            subnets = ss;
+      return doGet(ref, url).map(subnets -> {
+        List<String> ids = request.getSubnetIds();
+        if (shouldFilter(ids)) {
+          List<Subnet> ss = new ArrayList<Subnet>();
+          for (Subnet s : subnets) {
+            if (matches(ids, s.getSubnetId()))
+              ss.add(s);
           }
+          subnets = ss;
+        }
 
-          return new ServiceResult<DescribeSubnetsResult>(
-            sr.startTime,
-            new DescribeSubnetsResult().withSubnets(subnets)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new ServiceResult<DescribeSubnetsResult>(
+          0, //sr.startTime,
+          new DescribeSubnetsResult().withSubnets(subnets)
+        );
       });
     });
   }
@@ -314,31 +272,24 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
     validateEmpty("Filter", request.getFilters());
 
-    TypeReference<List<Volume>> ref = new TypeReference<List<Volume>>() {};
+    TypeReference<Volume> ref = new TypeReference<Volume>() {};
     String url = config.url() + "/api/v2/aws/volumes;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<Volume> volumes = parse(ref, sr.result);
-
-          List<String> ids = request.getVolumeIds();
-          if (shouldFilter(ids)) {
-            List<Volume> vs = new ArrayList<Volume>();
-            for (Volume v : volumes) {
-              if (matches(ids, v.getVolumeId()))
-                vs.add(v);
-            }
-            volumes = vs;
+      return doGet(ref, url).map(volumes -> {
+        List<String> ids = request.getVolumeIds();
+        if (shouldFilter(ids)) {
+          List<Volume> vs = new ArrayList<Volume>();
+          for (Volume v : volumes) {
+            if (matches(ids, v.getVolumeId()))
+              vs.add(v);
           }
+          volumes = vs;
+        }
 
-          return new PaginatedServiceResult<DescribeVolumesResult>(
-            sr.startTime,
-            null,
-            new DescribeVolumesResult().withVolumes(volumes)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new PaginatedServiceResult<DescribeVolumesResult>(
+          0, //sr.startTime,
+          null,
+          new DescribeVolumesResult().withVolumes(volumes)
+        );
       });
     });
   }
@@ -353,30 +304,23 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
     validateEmpty("Filter", request.getFilters());
 
-    TypeReference<List<Vpc>> ref = new TypeReference<List<Vpc>>() {};
+    TypeReference<Vpc> ref = new TypeReference<Vpc>() {};
     String url = config.url() + "/api/v2/aws/vpcs;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<Vpc> vpcs = parse(ref, sr.result);
-
-          List<String> ids = request.getVpcIds();
-          if (shouldFilter(ids)) {
-            List<Vpc> vs = new ArrayList<Vpc>();
-            for (Vpc v : vpcs) {
-              if (matches(ids, v.getVpcId()))
-                vs.add(v);
-            }
-            vpcs = vs;
+      return doGet(ref, url).map(vpcs -> {
+        List<String> ids = request.getVpcIds();
+        if (shouldFilter(ids)) {
+          List<Vpc> vs = new ArrayList<Vpc>();
+          for (Vpc v : vpcs) {
+            if (matches(ids, v.getVpcId()))
+              vs.add(v);
           }
+          vpcs = vs;
+        }
 
-          return new ServiceResult<DescribeVpcsResult>(
-            sr.startTime,
-            new DescribeVpcsResult().withVpcs(vpcs)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new ServiceResult<DescribeVpcsResult>(
+          0, //sr.startTime,
+          new DescribeVpcsResult().withVpcs(vpcs)
+        );
       });
     });
   }
@@ -391,30 +335,23 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     return Observable.defer(() -> {
     validateEmpty("Filter", request.getFilters());
 
-    TypeReference<List<VpcClassicLink>> ref = new TypeReference<List<VpcClassicLink>>() {};
+    TypeReference<VpcClassicLink> ref = new TypeReference<VpcClassicLink>() {};
     String url = config.url() + "/api/v2/aws/vpcClassicLinks;_expand";
-      return doGet(url).map(sr -> {
-        try {
-          List<VpcClassicLink> vpcs = parse(ref, sr.result);
-
-          List<String> ids = request.getVpcIds();
-          if (shouldFilter(ids)) {
-            List<VpcClassicLink> vs = new ArrayList<VpcClassicLink>();
-            for (VpcClassicLink v : vpcs) {
-              if (matches(ids, v.getVpcId()))
-                vs.add(v);
-            }
-            vpcs = vs;
+      return doGet(ref, url).map(vpcs -> {
+        List<String> ids = request.getVpcIds();
+        if (shouldFilter(ids)) {
+          List<VpcClassicLink> vs = new ArrayList<VpcClassicLink>();
+          for (VpcClassicLink v : vpcs) {
+            if (matches(ids, v.getVpcId()))
+              vs.add(v);
           }
+          vpcs = vs;
+        }
 
-          return new ServiceResult<DescribeVpcClassicLinkResult>(
-            sr.startTime,
-            new DescribeVpcClassicLinkResult().withVpcs(vpcs)
-          );
-        }
-        catch (IOException e) {
-          throw new AmazonClientException("Faled to parse " + url, e);
-        }
+        return new ServiceResult<DescribeVpcClassicLinkResult>(
+          0, //sr.startTime,
+          new DescribeVpcClassicLinkResult().withVpcs(vpcs)
+        );
       });
     });
   }

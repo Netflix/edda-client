@@ -15,18 +15,20 @@
  */
 package com.netflix.edda;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import io.netty.buffer.ByteBufInputStream;
+import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
+
+import iep.com.netflix.iep.http.ByteBufs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -56,7 +58,7 @@ abstract public class EddaAwsRxNettyClient {
     return ProxyHelper.wrapper(c, delegate, this);
   }
 
-  protected Observable<ServiceResult<byte[]>> doGet(final String uri) {
+  protected <T> Observable<List<T>> doGet(final TypeReference<T> ref, final String uri) {
     try {
       return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
       .flatMap(response -> {
@@ -67,17 +69,19 @@ abstract public class EddaAwsRxNettyClient {
           e.setRequestId(uri);
           return rx.Observable.error(e);
         }
-        return response.getContent()
-        .reduce(
-          new ByteArrayOutputStream(),
-          (out, bb) -> {
-              try { bb.readBytes(out, bb.readableBytes()); }
-              catch (IOException e) { throw new RuntimeException(e); }
-              return out;
+        List<T> retval = new ArrayList<T>();
+        return response.getContent().compose(ByteBufs.json())
+        .map(bb -> {
+          try (ByteBufInputStream in = new ByteBufInputStream(bb)) {
+            return (T) JsonHelper.createParser(in).readValueAs(ref);
           }
-        )
-        .map(out -> {
-          return new ServiceResult<byte[]>(0, out.toByteArray());
+          catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .reduce(retval, (acc, v) -> {
+          acc.add(v);
+          return acc;
         });
       })
       .timeout(2, TimeUnit.MINUTES);
@@ -89,10 +93,6 @@ abstract public class EddaAwsRxNettyClient {
 
   protected String mkUrl(String url) {
     return url.replaceAll("\\$\\{vip\\}", vip).replaceAll("\\$\\{region\\}", region);
-  }
-
-  protected <T> T parse(TypeReference<T> ref, byte[] body) throws IOException {
-      return JsonHelper.createParser(new ByteArrayInputStream(body)).readValueAs(ref);
   }
 
   protected void validateEmpty(String name, String s) {
