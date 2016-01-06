@@ -72,17 +72,14 @@ abstract public class EddaAwsRxNettyClient {
         List<T> retval = new ArrayList<T>();
         return response.getContent().compose(ByteBufs.json())
         .map(bb -> {
-          ByteBufInputStream is = new ByteBufInputStream(bb);
           try {
-            return (T) JsonHelper.createParser(is).readValueAs(ref);
+            return (T) JsonHelper.createParser(new ByteBufInputStream(bb)).readValueAs(ref);
           }
           catch (IOException e) {
             throw new RuntimeException(e);
           }
           finally {
-            if (is != null) { try { is.close(); } catch (IOException e) {} }
-            bb.skipBytes(bb.readableBytes());
-            //io.netty.util.ReferenceCountUtil.release(bb);
+            bb.release();
           }
         })
         .reduce(retval, (acc, v) -> {
