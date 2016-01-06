@@ -81,7 +81,7 @@ abstract public class EddaAwsRxNettyClient {
           }
           finally {
             if (is != null) { try { is.close(); } catch (IOException e) {} }
-            //io.netty.util.ReferenceCountUtil.safeRelease(bb);
+            io.netty.util.ReferenceCountUtil.release(bb);
           }
         })
         .reduce(retval, (acc, v) -> {
