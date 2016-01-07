@@ -5,7 +5,6 @@ object BuildSettings {
   val organization = "com.netflix.edda-client"
 
   val resolvers = Seq(
-    Resolver.mavenLocal,
     Resolver.jcenterRepo,
     DefaultMavenRepository,
     "jfrog" at "http://oss.jfrog.org/oss-snapshot-local",
