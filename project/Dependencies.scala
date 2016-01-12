@@ -8,7 +8,7 @@ object Dependencies {
     val iep       = "0.3.9"
     val iepShadow = "0.3.9.17"
     val rxjava    = "1.0.17"
-    val rxnetty   = "0.4.15.15"
+    val rxnetty   = "0.4.15.17"
     val rxAwsSdk  = "0.1.20"
     val awsMapper = "1.10.27.0"
     val netty     = "4.1.0.Beta8"
