@@ -20,7 +20,7 @@ object Bintray {
 
   lazy val settings: Seq[Def.Setting[_]] = bintraySettings ++ Seq(
     bintrayRepository := "maven",
-    bintrayPackage := "iep",
+    bintrayPackage := "edda-client",
     bintrayOrganization := Some("netflixoss"),
     bintrayReleaseOnPublish := false,
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -38,16 +38,16 @@ object Bintray {
     },
 
     pomExtra := (
-      <url>https://github.com/netflix/iep/wiki</url>
+      <url>https://github.com/netflix/edda-client/wiki</url>
       <scm>
-        <url>git@github.com:netflix/iep.git</url>
-        <connection>scm:git:git@github.com:netflix/iep.git</connection>
+        <url>git@github.com:netflix/edda-client.git</url>
+        <connection>scm:git:git@github.com:netflix/edda-client.git</connection>
       </scm>
       <developers>
         <developer>
-          <id>brharrington</id>
-          <name>Brian Harrington</name>
-          <email>brharrington@netflix.com</email>
+          <id>bpitman</id>
+          <name>Brent Pitman</name>
+          <email>bpitman@netflix.com</email>
         </developer>
       </developers>
     )
