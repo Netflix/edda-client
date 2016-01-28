@@ -59,6 +59,10 @@ abstract public class EddaAwsRxNettyClient {
   }
 
   protected <T> Observable<List<T>> doGet(final TypeReference<T> ref, final String uri) {
+    return doGet(ref, uri, 1024 * 1024);
+  }
+
+  protected <T> Observable<List<T>> doGet(final TypeReference<T> ref, final String uri, int maxLength) {
     try {
       return EddaContext.getContext().getRxHttp().get(mkUrl(uri))
       .flatMap(response -> {
@@ -70,7 +74,7 @@ abstract public class EddaAwsRxNettyClient {
           return rx.Observable.error(e);
         }
         List<T> retval = new ArrayList<T>();
-        return response.getContent().compose(ByteBufs.json())
+        return response.getContent().compose(ByteBufs.json(maxLength))
         .map(bb -> {
           try {
             return (T) JsonHelper.createParser(new ByteBufInputStream(bb)).readValueAs(ref);

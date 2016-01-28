@@ -138,7 +138,7 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
 
       TypeReference<Reservation> ref = new TypeReference<Reservation>() {};
       String url = config.url() + "/api/v2/aws/instances;_expand";
-      return doGet(ref, url).map(reservations -> {
+      return doGet(ref, url, 16 * 1024 * 1024).map(reservations -> {
         List<String> ids = request.getInstanceIds();
         if (shouldFilter(ids)) {
           List<Reservation> rs = new ArrayList<Reservation>();
