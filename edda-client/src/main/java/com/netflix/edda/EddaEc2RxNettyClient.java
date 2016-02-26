@@ -294,6 +294,37 @@ public class EddaEc2RxNettyClient extends EddaAwsRxNettyClient {
     });
   }
 
+  public Observable<ServiceResult<DescribeVpcPeeringConnectionsResult>> describeVpcPeeringConnections() {
+    return describeVpcPeeringConnections(new DescribeVpcPeeringConnectionsRequest());
+  }
+
+  public Observable<ServiceResult<DescribeVpcPeeringConnectionsResult>> describeVpcPeeringConnections(
+    final DescribeVpcPeeringConnectionsRequest request
+  ) {
+    return Observable.defer(() -> {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<VpcPeeringConnection> ref = new TypeReference<VpcPeeringConnection>() {};
+    String url = config.url() + "/api/v2/aws/vpcPeeringConnections;_expand";
+      return doGet(ref, url).map(vpcPeeringConnections -> {
+        List<String> ids = request.getVpcPeeringConnectionIds();
+        if (shouldFilter(ids)) {
+          List<VpcPeeringConnection> vs = new ArrayList<VpcPeeringConnection>();
+          for (VpcPeeringConnection v : vpcPeeringConnections) {
+            if (matches(ids, v.getVpcPeeringConnectionId()))
+              vs.add(v);
+          }
+          vpcPeeringConnections = vs;
+        }
+
+        return new ServiceResult<DescribeVpcPeeringConnectionsResult>(
+          0, //sr.startTime,
+          new DescribeVpcPeeringConnectionsResult().withVpcPeeringConnections(vpcPeeringConnections)
+        );
+      });
+    });
+  }
+
   public Observable<ServiceResult<DescribeVpcsResult>> describeVpcs() {
     return describeVpcs(new DescribeVpcsRequest());
   }
