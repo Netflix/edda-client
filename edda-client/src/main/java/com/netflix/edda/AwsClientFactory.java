@@ -20,6 +20,7 @@ import com.amazonaws.ResponseMetadata;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.AmazonClientException;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -30,6 +31,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 //import com.amazonaws.auth.PropertiesCredentials;
 //import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 //import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
+
+import com.amazonaws.retry.RetryPolicy;
 
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
@@ -117,7 +120,24 @@ public class AwsClientFactory {
       .withConnectionTimeout((int) config.connectionTimeout().getMillis())
       .withMaxConnections(config.maxConnections())
       .withMaxErrorRetry(config.maxErrorRetry())
-      .withSocketTimeout((int) config.socketTimeout().getMillis());
+      .withSocketTimeout((int) config.socketTimeout().getMillis())
+      .withRetryPolicy(
+        new RetryPolicy(
+          new RetryPolicy.RetryCondition() {
+            private final int maxRetries = config.maxErrorRetry();
+            @Override public boolean shouldRetry(
+              AmazonWebServiceRequest r, AmazonClientException e, int retriesAttempted
+            ) { return retriesAttempted < maxRetries; }
+          },
+          new RetryPolicy.BackoffStrategy() {
+            @Override public long delayBeforeNextRetry(
+              AmazonWebServiceRequest r, AmazonClientException e, int retriesAttempted
+            ) { return retriesAttempted * 1000L; }
+          },
+          config.maxErrorRetry(),
+          true
+        )
+      );
   }
 
   public static AmazonAutoScaling newAutoScalingClient() {
