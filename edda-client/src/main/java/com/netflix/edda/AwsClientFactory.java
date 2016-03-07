@@ -21,6 +21,7 @@ import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -127,7 +128,13 @@ public class AwsClientFactory {
             private final int maxRetries = config.maxErrorRetry();
             @Override public boolean shouldRetry(
               AmazonWebServiceRequest r, AmazonClientException e, int retriesAttempted
-            ) { return retriesAttempted < maxRetries; }
+            ) {
+              if (e instanceof AmazonServiceException) {
+                int code = ((AmazonServiceException) e).getStatusCode();
+                if (!(code % 100 == 5 || code == 403 || code == 429)) return false;
+              }
+              return retriesAttempted < maxRetries;
+            }
           },
           new RetryPolicy.BackoffStrategy() {
             @Override public long delayBeforeNextRetry(
