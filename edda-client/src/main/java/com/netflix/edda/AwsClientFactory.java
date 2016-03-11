@@ -131,7 +131,7 @@ public class AwsClientFactory {
             ) {
               if (e instanceof AmazonServiceException) {
                 int code = ((AmazonServiceException) e).getStatusCode();
-                if (!(code % 100 == 5 || code == 403 || code == 429)) return false;
+                if (!(code % 100 == 5 || code == 400 || code == 403 || code == 429)) return false;
               }
               return retriesAttempted < maxRetries;
             }
