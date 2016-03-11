@@ -3,15 +3,15 @@ import sbt._
 object Dependencies {
   object Versions {
     val scala     = "2.11.7"
-    val slf4j     = "1.7.10"
+    val slf4j     = "1.7.18"
     val spectator = "0.35.0"
-    val iep       = "0.3.17"
-    val iepShadow = "0.3.17.21"
-    val rxjava    = "1.0.21"
-    val rxnetty   = "0.4.15.21"
+    val iep       = "0.3.20"
+    val iepShadow = "0.3.20.22"
+    val rxjava    = "1.1.1"
+    val rxnetty   = "0.4.15.22"
     val rxAwsSdk  = "0.1.21"
     val awsMapper = "1.10.27.0"
-    val netty     = "4.1.0.Beta8"
+    val netty     = "4.1.0.CR3"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
