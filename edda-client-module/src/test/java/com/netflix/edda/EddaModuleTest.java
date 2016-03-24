@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.netflix.spectator.nflx.SpectatorModule;
-
 @RunWith(JUnit4.class)
 public class EddaModuleTest {
 
@@ -35,7 +33,6 @@ public class EddaModuleTest {
     Injector injector = Guice.createInjector(
       new EddaModule(),
       new RxNettyModule(),
-      //new SpectatorModule(),
       new EurekaModule()
     );
     Assert.assertNotNull(injector.getInstance(RxHttp.class));
