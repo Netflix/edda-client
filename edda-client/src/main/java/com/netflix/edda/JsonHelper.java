@@ -25,8 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.netflix.awsobjectmapper.AmazonObjectMapper;
-
+import com.netflix.awsobjectmapper.AmazonObjectMapperConfigurer;
 import com.netflix.edda.mapper.*;
 
 public class JsonHelper {
@@ -36,9 +35,9 @@ public class JsonHelper {
   private static final MappingJsonFactory factory;
 
   static {
-    mapper = new AmazonObjectMapper();
-    mapper.addMixInAnnotations(InstanceStateView.class, InstanceStateViewMixIn.class);
-    mapper.addMixInAnnotations(LoadBalancerAttributesView.class, LoadBalancerAttributesViewMixIn.class);
+    mapper = AmazonObjectMapperConfigurer.createConfigured()
+      .addMixIn(InstanceStateView.class, InstanceStateViewMixIn.class)
+      .addMixIn(LoadBalancerAttributesView.class, LoadBalancerAttributesViewMixIn.class);
     factory = new MappingJsonFactory(mapper);
   }
 

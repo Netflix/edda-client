@@ -114,8 +114,11 @@ public class AwsClientFactory {
 
     if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonAutoScaling client = new AmazonAutoScalingClient(provider, clientConfig(config));
-    client.setEndpoint("autoscaling." + region + ".amazonaws.com");
+    AmazonAutoScaling client = AmazonAutoScalingClient.builder()
+        .withCredentials(provider)
+        .withClientConfiguration(clientConfig(config))
+        .withRegion(region)
+        .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
     return client;
@@ -143,8 +146,11 @@ public class AwsClientFactory {
 
     if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonCloudWatch client = new AmazonCloudWatchClient(provider, clientConfig(config));
-    client.setEndpoint("monitoring." + region + ".amazonaws.com");
+    AmazonCloudWatch client = AmazonCloudWatchClient.builder()
+        .withCredentials(provider)
+        .withClientConfiguration(clientConfig(config))
+        .withRegion(region)
+        .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
     return client;
@@ -171,8 +177,11 @@ public class AwsClientFactory {
     EddaEc2Client edda = new EddaEc2Client(config, vip, region);
     if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonEC2 client = new AmazonEC2Client(provider, clientConfig(config));
-    client.setEndpoint("ec2." + region + ".amazonaws.com");
+    AmazonEC2 client = AmazonEC2Client.builder()
+        .withCredentials(provider)
+        .withClientConfiguration(clientConfig(config))
+        .withRegion(region)
+        .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
     return client;
@@ -211,8 +220,11 @@ public class AwsClientFactory {
 
     if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonElasticLoadBalancing client = new AmazonElasticLoadBalancingClient(provider, clientConfig(config));
-    client.setEndpoint("elasticloadbalancing." + region + ".amazonaws.com");
+    AmazonElasticLoadBalancing client = AmazonElasticLoadBalancingClient.builder()
+        .withCredentials(provider)
+        .withClientConfiguration(clientConfig(config))
+        .withRegion(region)
+        .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
     return client;
@@ -240,7 +252,10 @@ public class AwsClientFactory {
 
     if (config.useEdda() && !config.wrapAwsClient()) return edda.readOnly();
 
-    AmazonRoute53 client = new AmazonRoute53Client(provider, clientConfig(config));
+    AmazonRoute53 client = AmazonRoute53Client.builder()
+        .withCredentials(provider)
+        .withClientConfiguration(clientConfig(config))
+        .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
     return client;
