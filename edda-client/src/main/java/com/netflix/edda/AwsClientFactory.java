@@ -24,6 +24,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.retry.RetryPolicy;
 
 import com.amazonaws.services.autoscaling.AmazonAutoScaling;
@@ -255,6 +256,7 @@ public class AwsClientFactory {
     AmazonRoute53 client = AmazonRoute53Client.builder()
         .withCredentials(provider)
         .withClientConfiguration(clientConfig(config))
+        .withRegion(Regions.US_EAST_1) // us-east-1 only and needs to be explicit
         .build();
     if (config.useEdda())
       client = edda.wrapAwsClient(client);
