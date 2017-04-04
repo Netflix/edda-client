@@ -15,11 +15,8 @@
  */
 package com.netflix.edda;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -28,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netflix.config.ConfigurationManager;
 
-import iep.com.netflix.iep.http.RxHttp;
+import com.netflix.iep.http.RxHttp;
 
 @Singleton
 public class EddaContext {

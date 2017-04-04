@@ -21,11 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.netty.buffer.ByteBuf;
-import iep.io.reactivex.netty.protocol.http.client.HttpClientResponse;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.amazonaws.AmazonServiceException;
