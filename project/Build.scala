@@ -37,7 +37,6 @@ object MainBuild extends Build {
     .settings(buildSettings: _*)
     .settings(libraryDependencies ++= commonDeps)
     .settings(libraryDependencies ++= Seq(
-      Dependencies.rxAwsSdk,
       Dependencies.awsObjectMapper,
       Dependencies.iepConfig,
       Dependencies.iepNflxEnv,

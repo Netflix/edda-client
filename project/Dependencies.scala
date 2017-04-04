@@ -2,16 +2,12 @@ import sbt._
 
 object Dependencies {
   object Versions {
-    val scala     = "2.11.7"
+    val scala     = "2.11.8"
     val slf4j     = "1.7.18"
-    val spectator = "0.35.0"
-    val iep       = "0.3.20"
-    val iepShadow = "0.3.20.22"
-    val rxjava    = "1.1.1"
-    val rxnetty   = "0.4.15.22"
-    val rxAwsSdk  = "0.1.22"
-    val awsMapper = "1.10.27.0"
-    val netty     = "4.1.0.CR3"
+    val spectator = "0.53.0"
+    val iep       = "0.4.17"
+    val rxjava    = "1.2.6"
+    val awsMapper = "1.11.104"
   }
 
   val archaiusCore    = "com.netflix.archaius" % "archaius-core" % "0.6.5"
@@ -26,18 +22,13 @@ object Dependencies {
   val iepConfig       = "com.netflix.iep" % "iep-config" % Versions.iep
   val iepEurekaCfg    = "com.netflix.iep" % "iep-eureka-testconfig" % Versions.iep
   val iepModEureka    = "com.netflix.iep" % "iep-module-eureka" % Versions.iep
-  val iepModRxNetty   = "com.netflix.iep-shadow" % "iepshadow-iep-module-rxnetty" % Versions.iepShadow
+  val iepModRxNetty   = "com.netflix.iep" % "iep-module-rxnetty" % Versions.iep
   val iepNflxEnv      = "com.netflix.iep" % "iep-nflxenv" % Versions.iep
-  val iepRxHttp       = "com.netflix.iep-shadow" % "iepshadow-iep-rxhttp" % Versions.iepShadow
+  val iepRxHttp       = "com.netflix.iep" % "iep-rxhttp" % Versions.iep
   val junit           = "junit" % "junit" % "4.10"
   val junitInterface  = "com.novocode" % "junit-interface" % "0.11"
   val jzlib           = "com.jcraft" % "jzlib" % "1.1.3"
-  val nettyHandler    = "io.netty" % "netty-handler" % Versions.netty
-  val rxAwsSdk        = "com.netflix.rx-aws-java-sdk" % "rx-aws-java-sdk" % Versions.rxAwsSdk
   val rxjava          = "io.reactivex" % "rxjava" % Versions.rxjava
-  val rxnetty         = "com.netflix.iep-shadow" % "iepshadow-rxnetty" % Versions.rxnetty
-  val rxnettyCtxts    = "com.netflix.iep-shadow" % "iepshadow-rxnetty-contexts" % Versions.rxnetty
-  val rxnettySpectator= "com.netflix.iep-shadow" % "iepshadow-rxnetty-spectator" % Versions.rxnetty
   val scalaLibrary    = "org.scala-lang" % "scala-library" % Versions.scala
   val scalaLibraryAll = "org.scala-lang" % "scala-library-all" % Versions.scala
   val scalaLogging    = "com.typesafe.scala-logging" % "scala-logging_2.11" % "3.1.0"
