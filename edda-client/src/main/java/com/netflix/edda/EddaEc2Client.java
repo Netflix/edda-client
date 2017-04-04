@@ -276,6 +276,36 @@ public class EddaEc2Client extends EddaAwsClient {
     }
   }
 
+  public DescribeVpcPeeringConnectionsResult describeVpcPeeringConnections() {
+    return describeVpcPeeringConnections(new DescribeVpcPeeringConnectionsRequest());
+  }
+
+  public DescribeVpcPeeringConnectionsResult describeVpcPeeringConnections(DescribeVpcPeeringConnectionsRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<VpcPeeringConnection>> ref = new TypeReference<List<VpcPeeringConnection>>() {};
+    String url = config.url() + "/api/v2/aws/vpcPeeringConnections;_expand";
+    try {
+      List<VpcPeeringConnection> vpcs = parse(ref, doGet(url));
+
+      List<String> ids = request.getVpcPeeringConnectionIds();
+      if (shouldFilter(ids)) {
+        List<VpcPeeringConnection> vs = new ArrayList<VpcPeeringConnection>();
+        for (VpcPeeringConnection v : vpcs) {
+          if (matches(ids, v.getVpcPeeringConnectionId()))
+            vs.add(v);
+        }
+        vpcs = vs;
+      }
+
+      return new DescribeVpcPeeringConnectionsResult()
+          .withVpcPeeringConnections(vpcs);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
+
   public DescribeVpcsResult describeVpcs() {
     return describeVpcs(new DescribeVpcsRequest());
   }
@@ -300,6 +330,36 @@ public class EddaEc2Client extends EddaAwsClient {
 
       return new DescribeVpcsResult()
         .withVpcs(vpcs);
+    }
+    catch (IOException e) {
+      throw new AmazonClientException("Faled to parse " + url, e);
+    }
+  }
+
+  public DescribeVpcClassicLinkResult describeVpcClassicLink() {
+    return describeVpcClassicLink(new DescribeVpcClassicLinkRequest());
+  }
+
+  public DescribeVpcClassicLinkResult describeVpcClassicLink(DescribeVpcClassicLinkRequest request) {
+    validateEmpty("Filter", request.getFilters());
+
+    TypeReference<List<VpcClassicLink>> ref = new TypeReference<List<VpcClassicLink>>() {};
+    String url = config.url() + "/api/v2/aws/vpcClassicLinks;_expand";
+    try {
+      List<VpcClassicLink> vpcs = parse(ref, doGet(url));
+
+      List<String> ids = request.getVpcIds();
+      if (shouldFilter(ids)) {
+        List<VpcClassicLink> vs = new ArrayList<VpcClassicLink>();
+        for (VpcClassicLink v : vpcs) {
+          if (matches(ids, v.getVpcId()))
+            vs.add(v);
+        }
+        vpcs = vs;
+      }
+
+      return new DescribeVpcClassicLinkResult()
+          .withVpcs(vpcs);
     }
     catch (IOException e) {
       throw new AmazonClientException("Faled to parse " + url, e);
